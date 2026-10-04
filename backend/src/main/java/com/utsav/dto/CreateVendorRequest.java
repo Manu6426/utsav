@@ -21,9 +21,11 @@ public class CreateVendorRequest {
     @NotBlank(message = "City is required")
     private String city;
 
+    /** Vendor's home country as ISO 3166-1 alpha-2, e.g. "US", "IN", "AE". */
     @NotBlank(message = "Country is required")
     private String country;
 
+    /** ISO 4217 currency code, e.g. "USD", "INR", "AED" (never a bare symbol). */
     @NotBlank(message = "Currency is required")
     private String currency;
 

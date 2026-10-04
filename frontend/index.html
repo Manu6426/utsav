@@ -224,7 +224,7 @@ function mapVendor(b){
     id: b.id,
     name: b.name,
     cat: (b.category && b.category.id) || b.category || "",
-    city: b.city, country: b.country, cur: b.currency,
+    city: b.city, country: normCountry(b.country), cur: normCur(b.currency),
     rating: b.rating, rc: b.reviewCount, price: b.startingPrice,
     verified: !!b.verified, newcomer: !!b.newcomer,
     idVerified: false, idCountry: null,            /* not modelled by the API yet */
@@ -282,7 +282,7 @@ async function bootApi(){
   try{
     const [vendors, cats, occs] = await Promise.all([fetchVendors(), fetchCategories(), fetchOccasions()]);
     if(!Array.isArray(vendors) || !vendors.length) throw new Error("empty vendor catalog");
-    API_VENDORS = vendors;
+    API_VENDORS = vendors.map(normVendorInPlace);
     /* prefetch reviews so vendor profiles render instantly (localhost; cheap) */
     const settled = await Promise.all(vendors.map(v=>fetchReviews(v.id).catch(()=>[])));
     vendors.forEach((v,i)=>{ API_REVIEWS[v.id] = settled[i]; });
@@ -338,7 +338,7 @@ const catName = id => (CATEGORIES.find(c=>c.id===id)||{}).name || id;
 const occName = id => (OCCASIONS.find(o=>o.id===id)||{}).name || id;
 
 /* ---------- location detection: show nearby vendors automatically ---------- */
-const GEO_COUNTRY = { US:"USA", IN:"India", AE:"UAE", GB:"United Kingdom", CA:"Canada", AU:"Australia", SG:"Singapore", PK:"Pakistan", BD:"Bangladesh", NP:"Nepal", DE:"Germany", FR:"France" };
+const GEO_COUNTRY = { US:"US", IN:"IN", AE:"AE", GB:"GB", CA:"CA", AU:"AU", SG:"SG", PK:"PK", BD:"BD", NP:"NP", DE:"DE", FR:"FR" };
 /* geo state (let bindings) is declared after `store` below */
 function detectGeo(){
   if(geo || geoOff) return;
@@ -350,7 +350,7 @@ function detectGeo(){
     if(!cc) return;
     const raw = (d.city||"").toLowerCase();
     const hit = CITIES.find(c=>raw.includes(c.toLowerCase()));
-    geo = { city: hit||"", country: cc, label: d.city ? d.city+", "+cc : cc };
+    geo = { city: hit||"", country: cc, label: d.city ? d.city+", "+countryName(cc) : countryName(cc) };
     store.set("utsav_geo", geo);
     if((location.hash||"#/").indexOf("#/browse")===0 || (location.hash||"#/")==="#/") router();
   }).catch(()=>{ /* stay global on failure */ });
@@ -363,7 +363,7 @@ function geoActive(){
 }
 function geoBanner(){
   if(!geoActive()) return "";
-  const where = geo.city ? `near <b>${esc(geo.city)}</b>` : `in <b>${esc(geo.country)}</b>`;
+  const where = geo.city ? `near <b>${esc(geo.city)}</b>` : `in <b>${esc(countryName(geo.country))}</b>`;
   return `<div class="mt-3 inline-flex items-center gap-2 bg-white/70 border border-gold-light rounded-full pl-4 pr-2 py-1.5 text-sm text-maroon">
     <span>📍 Showing vendors ${where}</span>
     <button onclick="geoClear()" class="underline text-xs text-muted">Show all</button>
@@ -374,7 +374,7 @@ function geoBanner(){
 <script>
 /* ---------- seed vendors (19) ---------- */
 const SEED_VENDORS = [
-{ id:"meera", name:"Meera's Marigold Events", cat:"decorators", city:"Houston", country:"USA", cur:"$", rating:4.9, rc:132, price:1200, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"meera", name:"Meera's Marigold Events", cat:"decorators", city:"Houston", country:"US", cur:"USD", rating:4.9, rc:132, price:1200, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Mandaps that smell like home.",
   bio:"Meera has dressed 300+ mandaps across Texas over 9 years. Her team grows its own marigolds — yes, really — and builds stages that photograph like a dream. Famous for calm, on-time setups even when the baraat runs two hours late.",
   langs:["English","Hindi","Telugu"],
@@ -384,7 +384,7 @@ const SEED_VENDORS = [
   revs:[["Ananya R.",5,"Sep 2026","The mandap made my mother cry. Meera's team set up 400 flowers while we were still at the temple. Flawless."],["Divya S.",5,"Aug 2026","On time, on budget, and the stage looked straight out of a movie. Worth every dollar."],["Kavya M.",4,"Jun 2026","Gorgeous work. One backdrop panel arrived late but they fixed it before guests walked in."],["Rohit P.",5,"May 2026","They handled my sister's sangeet stage overnight. Magicians, honestly."]],
   collab:["lens","priya"] },
 
-{ id:"priya", name:"Glam by Priya", cat:"makeup", city:"New York", country:"USA", cur:"$", rating:4.8, rc:214, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"priya", name:"Glam by Priya", cat:"makeup", city:"New York", country:"US", cur:"USD", rating:4.8, rc:214, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Red lips approved by 200+ brides.",
   bio:"Priya is a certified pro artist who specializes in South Asian bridal glam — the kind that lasts through pheras, a hundred hugs, and happy tears. Trial sessions at her Queens studio.",
   langs:["English","Hindi","Tamil"],
@@ -394,7 +394,7 @@ const SEED_VENDORS = [
   revs:[["Sneha K.",5,"Sep 2026","My makeup survived 14 hours, three outfit changes, and my crying. Priya is a miracle worker."],["Lakshmi V.",5,"Jul 2026","She understood 'soft but make it bridal' perfectly. Trial was so thorough."],["Anitha D.",4,"May 2026","Beautiful work, slightly rushed during the big-morning rush — book the trial."],["Farah N.",5,"Apr 2026","Did my whole bridal party of six. Everyone looked like themselves, just luminous."]],
   collab:["aisha"] },
 
-{ id:"aisha", name:"Henna by Aisha", cat:"mehendi", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:6, price:80, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
+{ id:"aisha", name:"Henna by Aisha", cat:"mehendi", city:"Bay Area", country:"US", cur:"USD", rating:5.0, rc:6, price:80, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
   tag:"Bridal henna, party henna, tiny tattoos.",
   bio:"Aisha learned henna from her grandmother in Hyderabad and turned a dorm-room side hustle into the Bay Area's most-booked newcomer. Intricate bridal work in under four hours, organic cones only.",
   langs:["English","Hindi","Urdu"],
@@ -404,7 +404,7 @@ const SEED_VENDORS = [
   revs:[["Zara H.",5,"Sep 2026","The stain was DARK for a week. My bridal henna got more compliments than my lehenga."],["Priya N.",5,"Aug 2026","Booked her for my sister's mehendi morning — fast, sweet, insanely detailed."],["Meera J.",5,"Jul 2026","Newcomer prices, veteran skills. Get her before she raises rates!"]],
   collab:["priya"] },
 
-{ id:"lens", name:"Lens & Light Studio", cat:"photographers", city:"Dallas", country:"USA", cur:"$", rating:4.9, rc:98, price:1500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"lens", name:"Lens & Light Studio", cat:"photographers", city:"Dallas", country:"US", cur:"USD", rating:4.9, rc:98, price:1500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Candid first, posed never.",
   bio:"Husband-wife duo Arjun and Sara shoot 40+ Indian weddings a year. Two shooters, a same-day teaser reel, and a gallery your grandchildren will fight over.",
   langs:["English","Hindi"],
@@ -414,7 +414,7 @@ const SEED_VENDORS = [
   revs:[["Vikram T.",5,"Sep 2026","They caught my dad's expression when he saw my bride. I cried watching the teaser."],["Nisha R.",5,"Aug 2026","Invisible during the ceremony, everywhere that mattered. 900 stunning photos."],["Aditi L.",4,"Jun 2026","Gorgeous gallery. Delivery took 5 weeks, but worth the wait."]],
   collab:["meera"] },
 
-{ id:"natya", name:"Natya Beats", cat:"choreographers", city:"Boston", country:"USA", cur:"$", rating:4.9, rc:8, price:60, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
+{ id:"natya", name:"Natya Beats", cat:"choreographers", city:"Boston", country:"US", cur:"USD", rating:4.9, rc:8, price:60, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Your cousins WILL nail the hook step.",
   bio:"Classically trained in Bharatanatyam, fluent in Bollywood. Natya Beats has taught 200+ family members their sangeet routines — including one very reluctant chacha who now won't sit down.",
   langs:["English","Hindi","Tamil"],
@@ -424,7 +424,7 @@ const SEED_VENDORS = [
   revs:[["Deepa K.",5,"Sep 2026","She taught 14 of us — ages 8 to 68 — a 4-minute medley in 4 sessions. Standing ovation."],["Sanjay M.",5,"Aug 2026","Patient, funny, and our sangeet video looks professional."],["Ritu S.",4,"Jul 2026","Great with kids. Wish we'd booked more sessions!"]],
   collab:["arjun"] },
 
-{ id:"arjun", name:"MC Arjun Rao", cat:"hosts", city:"New York", country:"USA", cur:"$", rating:4.8, rc:76, price:400, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"arjun", name:"MC Arjun Rao", cat:"hosts", city:"New York", country:"US", cur:"USD", rating:4.8, rc:76, price:400, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Bilingual banter, zero awkward silences.",
   bio:"Arjun has hosted 150+ sangeets and receptions across the tri-state. English-Hindi-Telugu on the mic, games the elders actually enjoy, and timelines that stay on track.",
   langs:["English","Hindi","Telugu"],
@@ -434,7 +434,7 @@ const SEED_VENDORS = [
   revs:[["Kiran B.",5,"Sep 2026","He had both families laughing within ten minutes. The dumb charades round was legendary."],["Shreya P.",5,"Jul 2026","Professional, punctual, and kept our 6-hour sangeet moving perfectly."],["Amit J.",4,"May 2026","Great energy. Book early — he's in demand."]],
   collab:["natya"] },
 
-{ id:"everafter", name:"EverAfter Decor", cat:"decorators", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:5, price:600, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
+{ id:"everafter", name:"EverAfter Decor", cat:"decorators", city:"Bay Area", country:"US", cur:"USD", rating:5.0, rc:5, price:600, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
   tag:"Pinterest boards, but real.",
   bio:"Two best friends, one storage unit full of drapes, and five flawless events. EverAfter does modern Indian decor — think pampas grass meets marigold, at newcomer prices.",
   langs:["English","Hindi"],
@@ -444,7 +444,7 @@ const SEED_VENDORS = [
   revs:[["Neha G.",5,"Sep 2026","Our backyard wedding looked like a venue. They worked with our tiny budget so kindly."],["Sara F.",5,"Aug 2026","The arch was all over Instagram. Setup and teardown were silent and fast."]],
   collab:[] },
 
-{ id:"glowcraft", name:"GlowCraft Artistry", cat:"makeup", city:"Houston", country:"USA", cur:"$", rating:4.9, rc:7, price:180, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
+{ id:"glowcraft", name:"GlowCraft Artistry", cat:"makeup", city:"Houston", country:"US", cur:"USD", rating:4.9, rc:7, price:180, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Soft glam that survives happy tears.",
   bio:"Nisha worked backstage at fashion week before moving to Houston. Airbrush bridal looks at prices that don't need a family meeting — and lashes that stay put.",
   langs:["English","Hindi","Gujarati"],
@@ -454,7 +454,7 @@ const SEED_VENDORS = [
   revs:[["Pooja V.",5,"Sep 2026","Airbrush lasted 12 hours in Houston humidity. Enough said."],["Rina D.",5,"Jul 2026","So gentle and precise. My engagement photos are flawless."]],
   collab:[] },
 
-{ id:"shubh", name:"Shubh Decor Studio", cat:"decorators", city:"Hyderabad", country:"India", cur:"₹", rating:4.8, rc:187, price:25000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
+{ id:"shubh", name:"Shubh Decor Studio", cat:"decorators", city:"Hyderabad", country:"IN", cur:"INR", rating:4.8, rc:187, price:25000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Big-fat-wedding decor, honest prices.",
   bio:"Twelve years, 500+ weddings across Telangana and Andhra Pradesh. Shubh Decor owns its flowers, trussing, and lighting — which is why their quotes never have surprises.",
   langs:["Telugu","Hindi","English"],
@@ -464,7 +464,7 @@ const SEED_VENDORS = [
   revs:[["Sravani K.",5,"Sep 2026","They decorated our whole wedding in one night. My in-laws are still talking about the entrance."],["Harish G.",5,"Aug 2026","Transparent billing, no last-minute extras. Rare in this industry."],["Lalitha M.",4,"Jun 2026","Beautiful mandap. Flower freshness could be better in summer — ask for seasonal blooms."]],
   collab:["karthik"] },
 
-{ id:"kaya", name:"Kaya Kalp Makeup", cat:"makeup", city:"Chennai", country:"India", cur:"₹", rating:4.9, rc:143, price:8000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
+{ id:"kaya", name:"Kaya Kalp Makeup", cat:"makeup", city:"Chennai", country:"IN", cur:"INR", rating:4.9, rc:143, price:8000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Muhurtham-proof makeup.",
   bio:"Lakshmi's HD bridal looks stay put through six-hour muhurthams and Chennai humidity. Trials at her Adyar studio include a full skin-prep consultation.",
   langs:["Tamil","English","Hindi"],
@@ -474,7 +474,7 @@ const SEED_VENDORS = [
   revs:[["Divya R.",5,"Sep 2026","Sweat-proof through a June muhurtham. My photos need zero retouching."],["Janani S.",5,"Jul 2026","The trial alone was worth it — she fixed my skincare routine too."]],
   collab:["ritu"] },
 
-{ id:"ritu", name:"Mehendi Magic by Ritu", cat:"mehendi", city:"Bangalore", country:"India", cur:"₹", rating:5.0, rc:9, price:2100, verified:true, idVerified:false, idCountry:"India", newcomer:true,
+{ id:"ritu", name:"Mehendi Magic by Ritu", cat:"mehendi", city:"Bangalore", country:"IN", cur:"INR", rating:5.0, rc:9, price:2100, verified:true, idVerified:false, idCountry:"India", newcomer:true,
   tag:"Full bridal in 4 hours flat.",
   bio:"Ritu does three weddings a weekend in peak season and still takes party bookings. Organic henna, deep-stain guarantee, and designs from minimal chic to full bridal.",
   langs:["Hindi","English","Kannada"],
@@ -484,7 +484,7 @@ const SEED_VENDORS = [
   revs:[["Shalini P.",5,"Sep 2026","Darkest stain I've ever had. She finished both hands in 3.5 hours."],["Nandini K.",5,"Aug 2026","So fast without rushing the detail. Highly recommended."]],
   collab:["kaya"] },
 
-{ id:"karthik", name:"Frames by Karthik", cat:"photographers", city:"Chennai", country:"India", cur:"₹", rating:4.9, rc:11, price:15000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
+{ id:"karthik", name:"Frames by Karthik", cat:"photographers", city:"Chennai", country:"IN", cur:"INR", rating:4.9, rc:11, price:15000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Temple-town storytelling.",
   bio:"Karthik shot his first wedding on a borrowed camera; eleven 5-star reviews later, he's Chennai's worst-kept secret. Drone coverage included in every package.",
   langs:["Tamil","English"],
@@ -494,7 +494,7 @@ const SEED_VENDORS = [
   revs:[["Arun V.",5,"Sep 2026","The drone shot of our temple wedding is framed in our living room now."],["Meenakshi D.",5,"Jul 2026","Unobtrusive, creative, and half the price of the big studios."]],
   collab:["shubh"] },
 
-{ id:"dhoom", name:"Dhoom Dance Crew", cat:"choreographers", city:"Hyderabad", country:"India", cur:"₹", rating:4.8, rc:89, price:5000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
+{ id:"dhoom", name:"Dhoom Dance Crew", cat:"choreographers", city:"Hyderabad", country:"IN", cur:"INR", rating:4.8, rc:89, price:5000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Sangeet choreography in 6 sessions.",
   bio:"Four dancers, one dhol player on call, and sangeet routines that uncles can actually learn. Dhoom has choreographed 200+ family performances across two states.",
   langs:["Telugu","Hindi","English"],
@@ -504,7 +504,7 @@ const SEED_VENDORS = [
   revs:[["Sandeep R.",5,"Sep 2026","My 60-year-old father did a hook step. Enough said."],["Geetha N.",5,"Aug 2026","Six sessions, zero stress, one unforgettable sangeet."]],
   collab:["divya"] },
 
-{ id:"divya", name:"Anchor Divya", cat:"hosts", city:"Bangalore", country:"India", cur:"₹", rating:5.0, rc:4, price:7000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
+{ id:"divya", name:"Anchor Divya", cat:"hosts", city:"Bangalore", country:"IN", cur:"INR", rating:5.0, rc:4, price:7000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Games your athai will actually play.",
   bio:"Ex-RJ Divya brings radio energy to sangeets and birthdays. Kannada, Hindi, English, Tamil — she'll get your shyest cousin on stage and keep the aunties laughing.",
   langs:["Kannada","Hindi","English","Tamil"],
@@ -514,7 +514,7 @@ const SEED_VENDORS = [
   revs:[["Rakshita S.",5,"Sep 2026","She handled a 300-guest sangeet like a pro. The couple's game round was hilarious."]],
   collab:["dhoom"] },
 
-{ id:"petals", name:"Petal & Pine Events", cat:"decorators", city:"Chennai", country:"India", cur:"₹", rating:4.7, rc:12, price:9000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
+{ id:"petals", name:"Petal & Pine Events", cat:"decorators", city:"Chennai", country:"IN", cur:"INR", rating:4.7, rc:12, price:9000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Birthdays, half-saree ceremonies, and small joys.",
   bio:"Specialists in intimate celebrations — half-saree functions, seemanthams, first birthdays. Thoughtful, elegant decor that doesn't need a wedding budget.",
   langs:["Tamil","English"],
@@ -524,7 +524,7 @@ const SEED_VENDORS = [
   revs:[["Kavitha J.",5,"Aug 2026","My daughter's half-saree function looked straight out of a magazine."],["Revathi A.",4,"Jul 2026","Lovely work, very warm team. Slightly delayed setup — plan buffer time."]],
   collab:[] },
 
-{ id:"marcus", name:"DJ Marcus Cole", cat:"djs", city:"Boston", country:"USA", cur:"$", rating:4.8, rc:87, price:500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"marcus", name:"DJ Marcus Cole", cat:"djs", city:"Boston", country:"US", cur:"USD", rating:4.8, rc:87, price:500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"From Bollywood to Bad Bunny, one dance floor.",
   bio:"Marcus DJs 60+ South Asian weddings a year. Bhangra-to-Bad-Bunny transitions, dhol player on request, and a dance floor that empties only when the lights come on.",
   langs:["English"],
@@ -534,7 +534,7 @@ const SEED_VENDORS = [
   revs:[["Jessica T.",5,"Oct 2026","He read our crowd perfectly — my Indian side and his American side never left the floor."],["Aarav M.",5,"Sep 2026","The bhangra-to-hip-hop transitions were unreal. Best sangeet ever."]],
   collab:["confetti"] },
 
-{ id:"confetti", name:"Confetti & Co.", cat:"decorators", city:"Dallas", country:"USA", cur:"$", rating:4.9, rc:6, price:250, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
+{ id:"confetti", name:"Confetti & Co.", cat:"decorators", city:"Dallas", country:"US", cur:"USD", rating:4.9, rc:6, price:250, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Balloon arches that break the internet.",
   bio:"Started in a garage in 2024, now Dallas's go-to for birthdays and baby showers. Organic balloon garlands, neon signs, and genuine same-week availability.",
   langs:["English","Spanish"],
@@ -544,7 +544,7 @@ const SEED_VENDORS = [
   revs:[["Emily R.",5,"Sep 2026","The garland was the backdrop of every photo. Setup took 40 minutes flat."],["Sofia L.",5,"Aug 2026","Affordable, adorable, and so easy to work with."]],
   collab:["marcus"] },
 
-{ id:"hudson", name:"Hudson & Harvest", cat:"caterers", city:"New York", country:"USA", cur:"$", rating:4.7, rc:112, price:900, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
+{ id:"hudson", name:"Hudson & Harvest", cat:"caterers", city:"New York", country:"US", cur:"USD", rating:4.7, rc:112, price:900, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Farm-to-table, chaat to charcuterie.",
   bio:"A catering company that actually gets Indian weddings — live chaat counters next to a carving station. Serving 50 to 500 guests across the tri-state area.",
   langs:["English","Hindi"],
@@ -554,7 +554,7 @@ const SEED_VENDORS = [
   revs:[["Rajesh K.",4,"Sep 2026","The chaat counter had a longer line than the bar. Food was excellent, service slightly slow at peak."],["Michelle D.",5,"Aug 2026","They catered our 200-person Diwali gala flawlessly."]],
   collab:[] },
 
-{ id:"wicked", name:"Wicked Whimsy Studios", cat:"decorators", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:5, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
+{ id:"wicked", name:"Wicked Whimsy Studios", cat:"decorators", city:"Bay Area", country:"US", cur:"USD", rating:5.0, rc:5, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Halloween haunted houses, Christmas wonderlands.",
   bio:"Prop stylists obsessed with October and December. Haunted house builds, spooky tablescapes, and Christmas installs that belong in movies — at newcomer prices.",
   langs:["English"],
@@ -564,7 +564,7 @@ const SEED_VENDORS = [
   revs:[["Hannah W.",5,"Oct 2026","Our house was THE house on the street. Kids are still talking about it."],["Chris B.",5,"Sep 2026","Insanely creative. The floating candles! The fog! Worth double."]],
   collab:[] },
 
-{ id:"zahra", name:"Zahra Luxe Events", cat:"decorators", city:"Dubai", country:"UAE", cur:"AED", rating:4.9, rc:143, price:4500, verified:true, idVerified:true, idCountry:"UAE", newcomer:false,
+{ id:"zahra", name:"Zahra Luxe Events", cat:"decorators", city:"Dubai", country:"AE", cur:"AED", rating:4.9, rc:143, price:4500, verified:true, idVerified:true, idCountry:"UAE", newcomer:false,
   tag:"Arabian-night luxury meets desi grandeur.",
   bio:"Dubai's go-to team for big-fat weddings — Indian, Arab, and fusion. Ten years across Palm Jumeirah ballrooms and desert venues. Emirates ID verified, trade-licensed, and famous for setups that photograph like film sets.",
   langs:["English","Hindi","Arabic","Urdu"],
@@ -574,7 +574,7 @@ const SEED_VENDORS = [
   revs:[["Fatima A.",5,"Sep 2026","Our Nikah stage looked like a palace. Guests from three countries asked who did the decor."],["Rohan M.",5,"Aug 2026","Sangeet production with LED walls and dhol entry — flawless."],["Sara K.",4,"Jul 2026","Premium pricing, premium result. Book early, they fill fast."]],
   collab:["dunes"] },
 
-{ id:"dunes", name:"Dunes & Vows Films", cat:"photographers", city:"Dubai", country:"UAE", cur:"AED", rating:5.0, rc:9, price:3500, verified:true, idVerified:true, idCountry:"UAE", newcomer:true,
+{ id:"dunes", name:"Dunes & Vows Films", cat:"photographers", city:"Dubai", country:"AE", cur:"AED", rating:5.0, rc:9, price:3500, verified:true, idVerified:true, idCountry:"UAE", newcomer:true,
   tag:"Desert golden hour is our studio.",
   bio:"A young duo shooting weddings across the dunes and the Marina. Drone + candid, same-day edits, and prices that undercut the big studios while the portfolio grows. Emirates ID verified.",
   langs:["English","Hindi","Malayalam"],
@@ -607,17 +607,76 @@ let geo = store.get("utsav_geo", null);            // {city, country, label}
 let geoOff = store.get("utsav_geo_off", false);    // user chose "show all"
 
 /* ---------- vendor access (API-first, demo fallback) ---------- */
-const allVendors = () => (API_VENDORS || SEED_VENDORS).concat(store.get("utsav_vendors_custom", []));
+/* legacy localStorage data used symbols/names ("$","₹","USA"); normalize to ISO on read */
+function normVendorInPlace(v){ if(v){ v.country = normCountry(v.country); v.cur = normCur(v.cur); } return v; }
+const allVendors = () => (API_VENDORS || SEED_VENDORS).concat(store.get("utsav_vendors_custom", []).map(normVendorInPlace));
 const vendorById = id => allVendors().find(v => v.id === id);
 const catVendors = cat => allVendors().filter(v => v.cat === cat);
 
 /* ---------- formatting ---------- */
-function fmtPrice(cur, amt){
-  if(cur === "₹") return "₹" + Number(amt).toLocaleString("en-IN");
-  if(cur === "AED") return "AED " + Number(amt).toLocaleString("en-US");
-  return "$" + Number(amt).toLocaleString("en-US");
+/* ---------- international money: ONE helper renders every price on screen ----------
+   Vendors register with an ISO country; ALL vendor money renders in that country's
+   currency and number format (₹1,50,000 en-IN grouping vs $1,500 vs £950 vs AED 4,500).
+   Viewer-side chrome (budgets, freeze totals) uses the viewer's locale instead. */
+const COUNTRY_INFO = {
+  US:{name:"United States",locale:"en-US",currency:"USD",flag:"🇺🇸"},
+  IN:{name:"India",locale:"en-IN",currency:"INR",flag:"🇮🇳"},
+  GB:{name:"United Kingdom",locale:"en-GB",currency:"GBP",flag:"🇬🇧"},
+  AE:{name:"United Arab Emirates",locale:"en-AE",currency:"AED",flag:"🇦🇪"},
+  CA:{name:"Canada",locale:"en-CA",currency:"CAD",flag:"🇨🇦"},
+  AU:{name:"Australia",locale:"en-AU",currency:"AUD",flag:"🇦🇺"},
+  SG:{name:"Singapore",locale:"en-SG",currency:"SGD",flag:"🇸🇬"},
+  PK:{name:"Pakistan",locale:"en-PK",currency:"PKR",flag:"🇵🇰"},
+  BD:{name:"Bangladesh",locale:"en-BD",currency:"BDT",flag:"🇧🇩"},
+  NP:{name:"Nepal",locale:"en-NP",currency:"NPR",flag:"🇳🇵"},
+  DE:{name:"Germany",locale:"de-DE",currency:"EUR",flag:"🇩🇪"},
+  FR:{name:"France",locale:"fr-FR",currency:"EUR",flag:"🇫🇷"},
+  IE:{name:"Ireland",locale:"en-IE",currency:"EUR",flag:"🇮🇪"},
+  NL:{name:"Netherlands",locale:"nl-NL",currency:"EUR",flag:"🇳🇱"},
+  ES:{name:"Spain",locale:"es-ES",currency:"EUR",flag:"🇪🇸"},
+  IT:{name:"Italy",locale:"it-IT",currency:"EUR",flag:"🇮🇹"},
+  SA:{name:"Saudi Arabia",locale:"ar-SA",currency:"SAR",flag:"🇸🇦"},
+  QA:{name:"Qatar",locale:"ar-QA",currency:"QAR",flag:"🇶🇦"},
+  KW:{name:"Kuwait",locale:"ar-KW",currency:"KWD",flag:"🇰🇼"},
+  MY:{name:"Malaysia",locale:"ms-MY",currency:"MYR",flag:"🇲🇾"},
+};
+/* Home country per currency, used only for region inference in recommendations. */
+const CUR_HOME = { USD:"US", INR:"IN", AED:"AE", GBP:"GB", EUR:"DE", CAD:"CA", AUD:"AU", SGD:"SG", PKR:"PK", BDT:"BD", NPR:"NP", SAR:"SA", QAR:"QA", KWD:"KW", MYR:"MY" };
+/* Approximate FX to USD — for cross-currency budget COMPARISON only. Display never converts. */
+const FX_TO_USD = { USD:1, INR:1/83, AED:1/3.67, GBP:1.27, EUR:1.08, CAD:0.73, AUD:0.66, SGD:0.74, PKR:1/278, BDT:1/117, NPR:1/133, SAR:1/3.75, QAR:1/3.64, KWD:3.25, MYR:0.22 };
+const CUR_ALIASES = { "$":"USD","₹":"INR","AED":"AED","£":"GBP","€":"EUR","USD":"USD","INR":"INR","GBP":"GBP","EUR":"EUR","CAD":"CAD","AUD":"AUD","SGD":"SGD","PKR":"PKR","BDT":"BDT","NPR":"NPR","SAR":"SAR","QAR":"QAR","KWD":"KWD","MYR":"MYR" };
+function normCur(c){ const t=String(c==null?"":c).trim().toUpperCase(); return CUR_ALIASES[t] || (/^[A-Z]{3}$/.test(t)?t:"USD"); }
+const COUNTRY_ALIASES = { "USA":"US","UNITED STATES":"US","INDIA":"IN","UAE":"AE","UNITED ARAB EMIRATES":"AE","UNITED KINGDOM":"GB","UK":"GB","CANADA":"CA","AUSTRALIA":"AU","SINGAPORE":"SG","PAKISTAN":"PK","BANGLADESH":"BD","NEPAL":"NP","GERMANY":"DE","FRANCE":"FR" };
+function normCountry(c){ const t=String(c==null?"":c).trim().toUpperCase(); return COUNTRY_ALIASES[t] || (/^[A-Z]{2}$/.test(t)?t:"US"); }
+function countryName(cc){ const i=COUNTRY_INFO[normCountry(cc)]; return i?i.name:cc; }
+/* Vendor money rules: the vendor's OWN currency + locale, always. */
+function vendorMoney(v){
+  const cc = normCountry(v && v.country);
+  const info = COUNTRY_INFO[cc] || COUNTRY_INFO.US;
+  return { currency: normCur((v && v.cur) || info.currency), locale: info.locale, country: cc };
 }
-const priceUSD = v => v.cur === "₹" ? v.price / 83 : v.price;
+/* THE helper: every vendor price on screen goes through this. No bare $ or ₹ anywhere. */
+function fmtMoney(amt, v){
+  const m = vendorMoney(v), n = Number(amt)||0;
+  try { return new Intl.NumberFormat(m.locale,{style:"currency",currency:m.currency,maximumFractionDigits:Number.isInteger(n)?0:2}).format(n); }
+  catch(e){ return m.currency+" "+n.toLocaleString("en-US"); }
+}
+/* Viewer-side chrome (budgets, freeze totals, booking estimates): viewer's locale, explicit currency. */
+function fmtMoneyCode(amt, curCode){
+  const cur = normCur(curCode), n = Number(amt)||0;
+  const loc = (typeof navigator!=="undefined" && navigator.language) || "en-US";
+  try { return new Intl.NumberFormat(loc,{style:"currency",currency:cur,maximumFractionDigits:Number.isInteger(n)?0:2}).format(n); }
+  catch(e){ return cur+" "+n.toLocaleString("en-US"); }
+}
+/* Small flag + country/currency tag so a price is never ambiguous. */
+function countryTag(v){
+  const m = vendorMoney(v), info = COUNTRY_INFO[m.country]||{};
+  return `<span class="badge !py-0.5 !px-2 !text-[.68rem]" title="${esc(info.name||m.country)}">${info.flag||""} ${m.country} · ${m.currency}</span>`;
+}
+/* Cross-currency comparison helper (budgets, filters, sorting). Display never uses this. */
+const approxUSD = (amt, cur) => (Number(amt)||0) * (FX_TO_USD[normCur(cur)] || 1);
+const priceUSD = v => approxUSD(v.price, v && v.cur);
+const usdToCur = (usd, cur) => Math.round((Number(usd)||0) / (FX_TO_USD[normCur(cur)] || 1));
 function stars(r){
   const full = Math.round(r);
   let s = "";
@@ -777,13 +836,13 @@ function vendorCard(v){
     </a>
     <div class="p-5">
       <div class="flex items-center justify-between text-sm">
-        <span class="text-muted">📍 ${esc(v.city)}</span>
+        <span class="text-muted">📍 ${esc(v.city)} ${countryTag(v)}</span>
         <span class="flex items-center gap-1.5">${stars(v.rating)}<b>${v.rating.toFixed(1)}</b><span class="text-muted">(${v.rc})</span></span>
       </div>
       <p class="text-sm text-muted italic mt-1.5 font-display">“${esc(v.tag)}”</p>
       ${badgeRow(v)}
       <div class="flex items-center justify-between mt-4 pt-4 border-t border-cream">
-        <div><span class="text-xs text-muted uppercase tracking-wide">Starting at</span><div class="font-display text-xl font-semibold text-maroon">${fmtPrice(v.cur, v.price)}</div></div>
+        <div><span class="text-xs text-muted uppercase tracking-wide">Starting at</span><div class="font-display text-xl font-semibold text-maroon">${fmtMoney(v.price, v)}</div></div>
         <div class="flex gap-2">
           <button onclick="event.preventDefault();compareToggle('${v.id}')" title="Compare" class="w-10 h-10 rounded-full border ${inCmp?'bg-maroon text-white border-maroon':'border-gold-light text-maroon'} flex items-center justify-center text-lg font-bold hover:scale-110 transition">⇄</button>
           <button onclick="event.preventDefault();teamToggle('${v.id}')" title="${inTeam?'Remove from team':'Add to team'}" class="w-10 h-10 rounded-full border ${inTeam?'bg-gold text-maroon-deep border-gold':'border-gold-light text-maroon'} flex items-center justify-center text-lg font-bold hover:scale-110 transition">${inTeam?'✓':'+'}</button>
@@ -824,14 +883,18 @@ function conciergeParse(q){
   }
   let city = null;
   for(const c of CITIES){ if(t.includes(c.toLowerCase())){ city = c; break; } }
-  let budget=null, bcur="$";
-  let m = t.match(/₹\s?([\d,]+)/) || t.match(/([\d,]+)\s?(₹|rs\.?|rupees)/) || t.match(/rs\.?\s?([\d,]+)/);
-  if(m){ budget = parseInt(m[1].replace(/,/g,"")); bcur="₹"; }
-  else { m = t.match(/\$\s?([\d,]+)/) || t.match(/([\d,]+)\s?(dollars|usd|bucks)/); if(m) budget = parseInt(m[1].replace(/,/g,"")); }
+  let budget=null, bcur="USD";
+  const _num = s => parseInt(s.replace(/,/g,""),10);
+  let m = t.match(/₹\s?([\d,]+)/) || t.match(/([\d,]+)\s?(₹|rs\.?|rupees?|inr)\b/) || t.match(/\brs\.?\s?([\d,]+)/);
+  if(m){ budget = _num(m[1]); bcur="INR"; }
+  else if((m = t.match(/\$\s?([\d,]+)/) || t.match(/([\d,]+)\s?(\$|dollars?|usd|bucks)\b/) || t.match(/\busd\s?([\d,]+)/))){ budget=_num(m[1]); bcur="USD"; }
+  else if((m = t.match(/([\d,]+)\s?(aed|dirhams?)\b/) || t.match(/\baed\s?([\d,]+)/))){ budget=_num(m[1]); bcur="AED"; }
+  else if((m = t.match(/£\s?([\d,]+)/) || t.match(/([\d,]+)\s?(£|pounds?|gbp)\b/))){ budget=_num(m[1]); bcur="GBP"; }
+  else if((m = t.match(/€\s?([\d,]+)/) || t.match(/([\d,]+)\s?(€|euros?|eur)\b/))){ budget=_num(m[1]); bcur="EUR"; }
   if(!budget){
     m = t.match(/(?:budget|under|within|around|approx\.?)\s+([\d,]+)/);
-    if(m){ budget = parseInt(m[1].replace(/,/g,""));
-      bcur = (city && ["Hyderabad","Chennai","Bangalore"].includes(city)) ? "₹" : "$"; }
+    if(m){ budget = _num(m[1]);
+      bcur = (city && ["Hyderabad","Chennai","Bangalore"].includes(city)) ? "INR" : city==="Dubai" ? "AED" : "USD"; }
   }
   const g = t.match(/(\d+)\s*(guests|people|pax)/);
   return { occasion: occasion||"wedding", city, budget, bcur, guests: g?parseInt(g[1]):null, raw:q };
@@ -844,11 +907,11 @@ function pickVendor(catId, p){
     let s = v.rating*2 + (v.verified?1:0) + (v.newcomer?0.6:0);
     if(p.city && v.city===p.city) s += 3;
     else if(p.city){
-      const vIn = v.country==="India", cIn = ["Hyderabad","Chennai","Bangalore"].includes(p.city);
+      const vIn = v.country==="IN", cIn = ["Hyderabad","Chennai","Bangalore"].includes(p.city);
       if(vIn===cIn) s += 1;
     }
     if(p.budget){
-      const pusd = priceUSD(v), busd = p.bcur==="₹" ? p.budget/83 : p.budget;
+      const pusd = priceUSD(v), busd = approxUSD(p.budget, p.bcur);
       const share = busd / TEAM_BY_OCCASION[p.occasion].length;
       if(pusd <= share*1.8) s += 1.5; else s -= 2;
     }
@@ -856,7 +919,7 @@ function pickVendor(catId, p){
   }).sort((a,b)=>b.s-a.s);
   // ensure a newcomer gets surfaced when affordable
   const top = scored[0];
-  const newcomerAlt = scored.find(x=>x.v.newcomer && (!p.budget || priceUSD(x.v) <= (p.bcur==="₹"?p.budget/83:p.budget)/TEAM_BY_OCCASION[p.occasion].length*1.8));
+  const newcomerAlt = scored.find(x=>x.v.newcomer && (!p.budget || priceUSD(x.v) <= approxUSD(p.budget,p.bcur)/TEAM_BY_OCCASION[p.occasion].length*1.8));
   if(newcomerAlt && top && !top.v.newcomer && (top.s - newcomerAlt.s) < 1.2) return newcomerAlt.v;
   return top ? top.v : null;
 }
@@ -865,14 +928,14 @@ function recommendTeam(p){
   const team = [];
   for(const c of cats){ const v = pickVendor(c, Object.assign({},p,{occasion:p.occasion})); if(v && !team.find(x=>x.id===v.id)) team.push(v); }
   const totalUSD = team.reduce((a,v)=>a+priceUSD(v),0);
-  const cur = p.bcur || "$";
-  const total = cur==="₹" ? Math.round(totalUSD*83) : Math.round(totalUSD);
+  const cur = normCur(p.bcur);
+  const total = usdToCur(totalUSD, cur);
   return { team, total, cur, cats };
 }
 function recommendTeamStrict(p){
   // Budget-freeze mode: every pick must keep the running total inside the frozen budget.
   const cats = TEAM_BY_OCCASION[p.occasion] || ["decorators","photographers","makeup","djs"];
-  const budgetUSD = (p.bcur==="₹" ? p.budget/83 : p.budget);
+  const budgetUSD = approxUSD(p.budget, p.bcur);
   let remaining = budgetUSD;
   const team = [], skipped = [];
   cats.forEach((c, idx)=>{
@@ -880,9 +943,9 @@ function recommendTeamStrict(p){
     let cands = allVendors().filter(v=>v.cat===c && v.occ.includes(p.occasion));
     if(!cands.length) cands = allVendors().filter(v=>v.cat===c);
     const inRegion = v => {
-      if(!p.city) return v.country === (p.bcur==="₹" ? "India" : "USA");
+      if(!p.city) return v.country === (CUR_HOME[normCur(p.bcur)] || "US");
       if(v.city===p.city) return true;
-      const vIn = v.country==="India", cIn = ["Hyderabad","Chennai","Bangalore"].includes(p.city);
+      const vIn = v.country==="IN", cIn = ["Hyderabad","Chennai","Bangalore"].includes(p.city);
       return vIn===cIn;
     };
     const affordable = cands.filter(v=>priceUSD(v) <= share*1.15)
@@ -896,8 +959,8 @@ function recommendTeamStrict(p){
     else skipped.push(catName(c));
   });
   const totalUSD = budgetUSD - remaining;
-  const cur = p.bcur || "$";
-  return { team, total: cur==="₹" ? Math.round(totalUSD*83) : Math.round(totalUSD), cur, skipped };
+  const cur = normCur(p.bcur);
+  return { team, total: usdToCur(totalUSD, cur), cur, skipped };
 }
 function conciergeHTML(){
   return `<div class="bg-white/10 backdrop-blur-xl border border-white/25 rounded-3xl p-6 sm:p-8 shadow-lift">
@@ -934,14 +997,14 @@ function runConcierge(){
   const detected = [];
   detected.push(`<span class="badge !bg-white/15 !text-ivory !border-white/25">${occName(p.occasion)}</span>`);
   if(p.city) detected.push(`<span class="badge !bg-white/15 !text-ivory !border-white/25">📍 ${p.city}</span>`);
-  if(p.budget) detected.push(`<span class="badge !bg-white/15 !text-ivory !border-white/25">Budget ${fmtPrice(p.bcur,p.budget)}</span>`);
+  if(p.budget) detected.push(`<span class="badge !bg-white/15 !text-ivory !border-white/25">Budget ${fmtMoneyCode(p.budget,p.bcur)}</span>`);
   if(p.guests) detected.push(`<span class="badge !bg-white/15 !text-ivory !border-white/25">${p.guests} guests</span>`);
   box.innerHTML = `
   <div class="bg-ivory rounded-2xl p-5 sm:p-6 text-ink" style="animation:toastIn .4s ease">
     <div class="flex flex-wrap items-center gap-2 mb-1"><span class="text-xs font-bold uppercase tracking-widest text-muted">Matched for you</span>${detected.join("")}</div>
     <h4 class="font-display text-2xl font-semibold text-maroon mb-1">Your celebration team</h4>
-    <p class="text-sm text-muted mb-4">Estimated starting total: <b class="text-maroon font-display text-xl">${fmtPrice(cur,total)}</b>
-    ${strict?`<span class="text-xs">of <b>${fmtPrice(cur,p.budget)}</b> frozen ❄ · <b class="text-green-700">${fmtPrice(cur,Math.max(0,p.budget-total))}</b> headroom</span>`:`<span class="text-xs">(starting prices — final quote confirmed with each vendor)</span>`}</p>
+    <p class="text-sm text-muted mb-4">Estimated starting total: <b class="text-maroon font-display text-xl">${fmtMoneyCode(total,cur)}</b>
+    ${strict?`<span class="text-xs">of <b>${fmtMoneyCode(p.budget,cur)}</b> frozen ❄ · <b class="text-green-700">${fmtMoneyCode(Math.max(0,p.budget-total),cur)}</b> headroom</span>`:`<span class="text-xs">(starting prices — final quote confirmed with each vendor)</span>`}</p>
     ${strict && res.skipped.length?`<p class="text-xs text-muted mb-4 bg-gold-pale border border-gold-light rounded-lg px-3 py-2">Skipped to protect your budget: ${res.skipped.join(", ")} — ask the concierge for a smaller occasion or raise the freeze.</p>`:""}
     <div class="grid sm:grid-cols-2 gap-3 mb-5">
       ${team.map(v=>`
@@ -950,7 +1013,7 @@ function runConcierge(){
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-sm truncate">${esc(v.name)}</div>
             <div class="text-xs text-muted">${catName(v.cat)} · ${stars(v.rating)} ${v.rating.toFixed(1)}</div>
-            <div class="text-xs font-bold text-maroon">from ${fmtPrice(v.cur,v.price)}</div>
+            <div class="text-xs font-bold text-maroon">from ${fmtMoney(v.price,v)}</div>
           </div>
           <a href="#/vendor/${v.id}" class="btn-outline btn-sm !py-1.5 !px-3 text-xs">View</a>
         </div>`).join("")}
@@ -973,7 +1036,7 @@ function addTeamMany(ids){
 <script>
 /* ═══════════ BUDGET FREEZE (two-sided) ═══════════ */
 const frozenGet = () => store.get("utsav_frozen", null);
-const frozenUSD = () => { const f = frozenGet(); return f ? (f.cur==="₹" ? f.amount/83 : f.amount) : null; };
+const frozenUSD = () => { const f = frozenGet(); return f ? approxUSD(f.amount, f.cur) : null; };
 function freezeSet(amount, cur, guests, occasion){
   store.set("utsav_frozen", { amount, cur, guests, occasion });
   updateFreezePill(); toast("Budget frozen — results now respect it");
@@ -988,10 +1051,10 @@ function updateFreezePill(){
   if(!el) return;
   const f = frozenGet();
   if(!f){ el.innerHTML = ""; return; }
-  el.innerHTML = `<button onclick="openFreezeModal()" class="badge !text-[.72rem] !py-2 !px-3.5 bg-maroon text-gold-light border border-gold/50 hover:bg-maroon-dark transition" title="Edit frozen budget">❄ ${fmtPrice(f.cur,f.amount)} frozen</button>`;
+  el.innerHTML = `<button onclick="openFreezeModal()" class="badge !text-[.72rem] !py-2 !px-3.5 bg-maroon text-gold-light border border-gold/50 hover:bg-maroon-dark transition" title="Edit frozen budget">❄ ${fmtMoneyCode(f.amount,f.cur)} frozen</button>`;
 }
 function openFreezeModal(){
-  const f = frozenGet() || { amount:"", cur:"$", guests:"", occasion:"" };
+  const f = frozenGet() || { amount:"", cur:"USD", guests:"", occasion:"" };
   openModal(`
   <div class="p-7 sm:p-9">
     <div class="flex items-start justify-between mb-1">
@@ -1001,7 +1064,7 @@ function openFreezeModal(){
     <p class="text-muted text-sm mb-6">Set your total celebration budget once. Every search result, filter, and AI team is built strictly inside it. Proof over promises.</p>
     <div class="grid sm:grid-cols-2 gap-4 mb-4">
       <div><label class="lbl">Total budget</label><input id="fz-amount" type="number" min="1" class="field" placeholder="3000" value="${f.amount||""}"></div>
-      <div><label class="lbl">Currency</label><select id="fz-cur" class="field"><option value="$" ${f.cur==="$"?"selected":""}>USD ($)</option><option value="₹" ${f.cur==="₹"?"selected":""}>INR (₹)</option></select></div>
+      <div><label class="lbl">Currency</label><select id="fz-cur" class="field"><option value="USD" ${normCur(f.cur)==="USD"?"selected":""}>USD</option><option value="INR" ${normCur(f.cur)==="INR"?"selected":""}>INR</option><option value="AED" ${normCur(f.cur)==="AED"?"selected":""}>AED</option><option value="GBP" ${normCur(f.cur)==="GBP"?"selected":""}>GBP</option><option value="EUR" ${normCur(f.cur)==="EUR"?"selected":""}>EUR</option><option value="CAD" ${normCur(f.cur)==="CAD"?"selected":""}>CAD</option><option value="AUD" ${normCur(f.cur)==="AUD"?"selected":""}>AUD</option><option value="SGD" ${normCur(f.cur)==="SGD"?"selected":""}>SGD</option></select></div>
       <div><label class="lbl">Guests (optional)</label><input id="fz-guests" type="number" min="1" class="field" placeholder="80" value="${f.guests||""}"></div>
       <div><label class="lbl">Occasion</label><select id="fz-occ" class="field">${OCCASIONS.map(o=>`<option value="${o.id}" ${f.occasion===o.id?"selected":""}>${o.name}</option>`).join("")}</select></div>
     </div>
@@ -1085,7 +1148,7 @@ function worksWithin(v){
 function budgetTagHTML(v, item){
   if(item.budget==null) return "";
   const g = item.guests ? ` · ${item.guests} guest${item.guests>1?"s":""}` : "";
-  return `<span class="absolute bottom-2 left-2 badge !bg-maroon-deep/85 !text-gold-light !border-0 backdrop-blur">❄ ${fmtPrice(v.cur,item.budget)}${g}</span>`;
+  return `<span class="absolute bottom-2 left-2 badge !bg-maroon-deep/85 !text-gold-light !border-0 backdrop-blur">❄ ${fmtMoney(item.budget,v)}${g}</span>`;
 }
 /* ---- credentials & kit: self-reported, optional, never a verification claim ---- */
 function credsHTML(v){
@@ -1138,7 +1201,7 @@ function HomeView(){
         ${fz ? `
         <div class="bg-ivory rounded-2xl px-6 py-4 flex items-center gap-4 flex-wrap">
           <div><div class="text-xs uppercase tracking-widest text-muted font-bold">Frozen budget</div>
-          <div class="font-display text-3xl font-semibold text-maroon">${fmtPrice(fz.cur,fz.amount)}</div>
+          <div class="font-display text-3xl font-semibold text-maroon">${fmtMoneyCode(fz.amount,fz.cur)}</div>
           <div class="text-xs text-muted">${fz.guests?fz.guests+" guests · ":""}${occName(fz.occasion)}</div></div>
           <button onclick="openFreezeModal()" class="btn-outline btn-sm">Edit</button>
           <button onclick="freezeClear()" class="text-sm text-muted underline hover:text-maroon">Unfreeze</button>
@@ -1291,7 +1354,7 @@ function BrowseView(){
       <h1 class="font-display text-4xl sm:text-5xl font-semibold text-maroon tracking-tight">Find your vendors</h1>
       ${geoBanner()}
       ${fz?`<div class="mt-3 inline-flex items-center gap-3 bg-maroon-deep text-ivory rounded-full pl-4 pr-2 py-1.5 text-sm">
-        <span>❄ Budget frozen: <b class="text-gold-light">${fmtPrice(fz.cur,fz.amount)}</b>${fz.guests?` · ${fz.guests} guests`:""} · ${occName(fz.occasion)}</span>
+        <span>❄ Budget frozen: <b class="text-gold-light">${fmtMoneyCode(fz.amount,fz.cur)}</b>${fz.guests?` · ${fz.guests} guests`:""} · ${occName(fz.occasion)}</span>
         <button onclick="openFreezeModal()" class="underline text-gold-light text-xs">edit</button>
         <button onclick="freezeClear()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-sm">×</button>
       </div>`:`<button onclick="openFreezeModal()" class="mt-3 btn-outline btn-sm">❄ Freeze a budget to filter by it</button>`}
@@ -1314,8 +1377,8 @@ function BrowseView(){
         <select id="f-occ" class="field mb-4" onchange="setFilter('occasion',this.value)">
           <option value="">All occasions</option>${OCCASIONS.map(o=>`<option value="${o.id}" ${f.occasion===o.id?'selected':''}>${o.name}</option>`).join("")}
         </select>
-        <label class="lbl">Max budget <span class="text-gold font-bold" id="f-max-label">${f.max?"$"+Number(f.max).toLocaleString():"Any"}</span></label>
-        <input id="f-max" type="range" min="50" max="3000" step="50" value="${f.max||3000}" class="w-full mb-1" oninput="document.getElementById('f-max-label').textContent='$'+Number(this.value).toLocaleString()" onchange="setFilter('max',this.value)">
+        <label class="lbl">Max budget <span class="text-gold font-bold" id="f-max-label">${f.max?fmtMoneyCode(f.max,"USD"):"Any"}</span></label>
+        <input id="f-max" type="range" min="50" max="3000" step="50" value="${f.max||3000}" class="w-full mb-1" oninput="document.getElementById('f-max-label').textContent=fmtMoneyCode(this.value,'USD')" onchange="setFilter('max',this.value)">
         <p class="text-[11px] text-muted mb-4">USD equivalent · ${fz?"pre-filled from your frozen budget":"slide to set"}</p>
         <label class="lbl">Minimum rating</label>
         <select id="f-rating" class="field mb-4" onchange="setFilter('minRating',this.value)">
@@ -1380,7 +1443,7 @@ function renderBrowseResults(){
   const el = document.getElementById("browse-results");
   if(!el) return;
   let notice = "";
-  if(hiddenByBudget>0) notice = `<div class="col-span-full bg-gold-pale border border-gold-light rounded-xl px-4 py-3 text-sm text-maroon">❄ ${hiddenByBudget} vendor${hiddenByBudget>1?"s":""} hidden — over your ${max?"$"+Number(max).toLocaleString():""} budget. <button class="underline font-semibold" onclick="setFilter('max','')">Show all</button></div>`;
+  if(hiddenByBudget>0) notice = `<div class="col-span-full bg-gold-pale border border-gold-light rounded-xl px-4 py-3 text-sm text-maroon">❄ ${hiddenByBudget} vendor${hiddenByBudget>1?"s":""} hidden — over your ${max?fmtMoneyCode(max,"USD"):""} budget. <button class="underline font-semibold" onclick="setFilter('max','')">Show all</button></div>`;
   el.innerHTML = notice + (list.length
     ? list.map(vendorCard).join("")
     : `<div class="col-span-full card p-12 text-center"><h3 class="font-display text-2xl text-maroon mb-2">No vendors match — yet</h3><p class="text-muted mb-6">Try widening the budget or clearing a filter.</p><button onclick="location.hash='#/browse'" class="btn-primary btn-sm">Clear filters</button></div>`);
@@ -1430,7 +1493,7 @@ function VendorView(id){
             ${v.newcomer?`<span class="badge badge-newcomer">✦ Newcomer · Budget pick</span>`:""}
           </div>
           <h1 class="font-display text-4xl sm:text-5xl font-semibold text-maroon tracking-tight">${esc(v.name)}</h1>
-          <p class="text-muted mt-1">📍 ${esc(v.city)}, ${esc(v.country)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
+          <p class="text-muted mt-1">📍 ${esc(v.city)}, ${esc(countryName(v.country))} ${countryTag(v)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
         </div>
         <div class="flex gap-2 pb-1">
           <a href="#/vendor/${v.id}/portfolio" class="btn-outline btn-sm">⧉ Portfolio</a>
@@ -1440,8 +1503,8 @@ function VendorView(id){
       </div>
       <div class="flex items-center gap-6 mt-6 pb-6 border-b border-cream flex-wrap">
         <div class="flex items-center gap-2">${stars(rating)}<b class="text-xl">${rating.toFixed(1)}</b><span class="text-muted text-sm">(${v.rc + (revs.length-(v.revs||[]).length)} reviews)</span></div>
-        <div class="text-sm"><span class="text-muted">Starting at</span> <b class="font-display text-2xl text-maroon">${fmtPrice(v.cur,v.price)}</b></div>
-        ${ww?`<div class="text-sm"><span class="text-muted">❄ Works within</span> <b class="text-maroon">${fmtPrice(ww.cur,ww.min)}–${fmtPrice(ww.cur,ww.max)}</b> <span class="text-muted text-xs">(tagged past work)</span></div>`:""}
+        <div class="text-sm"><span class="text-muted">Starting at</span> <b class="font-display text-2xl text-maroon">${fmtMoney(v.price,v)}</b></div>
+        ${ww?`<div class="text-sm"><span class="text-muted">❄ Works within</span> <b class="text-maroon">${fmtMoney(ww.min,v)}–${fmtMoney(ww.max,v)}</b> <span class="text-muted text-xs">(tagged past work)</span></div>`:""}
         <div class="text-sm text-muted">🗣 ${v.langs.join(" · ")}</div>
       </div>
       <div class="flex gap-2 mt-6 overflow-x-auto pb-1" id="profile-tabs">
@@ -1475,7 +1538,7 @@ function renderProfileTab(id){
       ${v.services.map((s,i)=>`
       <div class="card p-5 flex items-center justify-between gap-4">
         <div><h4 class="font-semibold">${esc(s[0])}</h4><p class="text-xs text-muted mt-0.5">per ${s[2]}</p></div>
-        <div class="text-right shrink-0"><div class="font-display text-xl font-semibold text-maroon">${fmtPrice(v.cur,s[1])}</div>
+        <div class="text-right shrink-0"><div class="font-display text-xl font-semibold text-maroon">${fmtMoney(s[1],v)}</div>
         <button onclick="openBooking('${v.id}',{service:${i}})" class="btn-primary btn-sm mt-1">Book</button></div>
       </div>`).join("")}
     </div>`;
@@ -1585,7 +1648,7 @@ function PortfolioView(id){
               ${v.newcomer?`<span class="badge badge-newcomer">✦ Newcomer · Budget pick</span>`:""}
             </div>
             <h1 class="font-display text-4xl sm:text-5xl font-semibold text-ivory tracking-tight">${esc(v.name)}</h1>
-            <p class="text-ivory/80 mt-1">📍 ${esc(v.city)}, ${esc(v.country)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
+            <p class="text-ivory/80 mt-1">📍 ${esc(v.city)}, ${esc(countryName(v.country))} ${countryTag(v)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
           </div>
         </div>
       </div>
@@ -1593,7 +1656,7 @@ function PortfolioView(id){
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       <div class="flex flex-wrap items-center gap-6 pb-6 border-b border-cream">
         <div class="flex items-center gap-2">${stars(rating)}<b class="text-xl">${rating.toFixed(1)}</b><span class="text-muted text-sm">(${v.rc} reviews)</span></div>
-        <div class="text-sm"><span class="text-muted">Starting at</span> <b class="font-display text-2xl text-maroon">${fmtPrice(v.cur,v.price)}</b></div>
+        <div class="text-sm"><span class="text-muted">Starting at</span> <b class="font-display text-2xl text-maroon">${fmtMoney(v.price,v)}</b></div>
         <div class="flex gap-2 ml-auto">
           <a href="#/vendor/${v.id}" class="btn-outline btn-sm">Full profile</a>
           <button onclick="openBooking('${v.id}')" class="btn-primary btn-sm">Book this vendor</button>
@@ -1636,7 +1699,7 @@ function PortfolioView(id){
           ${v.services.map(s=>`
           <div class="card p-5 flex items-center justify-between gap-4">
             <div><h4 class="font-semibold">${esc(s[0])}</h4><p class="text-xs text-muted mt-0.5">per ${s[2]}</p></div>
-            <div class="font-display text-xl font-semibold text-maroon shrink-0">${fmtPrice(v.cur,s[1])}</div>
+            <div class="font-display text-xl font-semibold text-maroon shrink-0">${fmtMoney(s[1],v)}</div>
           </div>`).join("")}
         </div>
       </div>
@@ -1689,7 +1752,7 @@ function renderLightbox(){
     <div class="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-between gap-3">
       <div><div class="text-ivory font-semibold">${esc(p.title||p.label||v.name)}</div>
       ${p.caption?`<div class="text-ivory/70 text-sm mt-0.5">${esc(p.caption)}</div>`:""}
-      ${p.budget!=null?`<div class="text-gold-light text-sm font-semibold mt-0.5">❄ Executed at ${fmtPrice(v.cur,p.budget)}${p.guests?` · ${p.guests} guests`:""}</div>`:""}</div>
+      ${p.budget!=null?`<div class="text-gold-light text-sm font-semibold mt-0.5">❄ Executed at ${fmtMoney(p.budget,v)}${p.guests?` · ${p.guests} guests`:""}</div>`:""}</div>
       <div class="text-ivory/70 text-sm">${lbState.idx+1} / ${lbState.n}</div>
     </div>
   </div>`, true);
@@ -1704,8 +1767,8 @@ function CompareView(){
     ["Photo", v=>`<img src="${v.port[0].img||v.port[0]}" class="w-24 h-24 rounded-2xl object-cover mx-auto">`],
     ["Vendor", v=>`<b class="font-display text-xl text-maroon">${esc(v.name)}</b><div class="text-xs text-muted">${catName(v.cat)}</div>`],
     ["Rating", v=>`${stars(v.rating)} <b>${v.rating.toFixed(1)}</b> <span class="text-muted text-xs">(${v.rc})</span>`],
-    ["Starting price", v=>`<b class="font-display text-2xl text-maroon">${fmtPrice(v.cur,v.price)}</b>`],
-    ["Budget proof", v=>{const w=worksWithin(v);return w?`<span class="text-sm">❄ ${fmtPrice(w.cur,w.min)}–${fmtPrice(w.cur,w.max)}</span>`:'<span class="text-muted text-sm">—</span>';}],
+    ["Starting price", v=>`<b class="font-display text-2xl text-maroon">${fmtMoney(v.price,v)}</b>`],
+    ["Budget proof", v=>{const w=worksWithin(v);return w?`<span class="text-sm">❄ ${fmtMoney(w.min,v)}–${fmtMoney(w.max,v)}</span>`:'<span class="text-muted text-sm">—</span>';}],
     ["Badges", v=>`<div class="flex justify-center gap-1 flex-wrap">${v.verified?'<span class="badge badge-verified">✓</span>':""}${v.idVerified?'<span class="badge badge-idver" title="Govt ID verified">🛡</span>':""}${v.newcomer?'<span class="badge badge-newcomer">✦ New</span>':""}</div>`],
     ["Experience", v=>{const n=v.rc;return `<span class="text-sm font-medium">${n>=100?"200+ events":n>=20?"50+ events":n>=5?"10+ events":"Rising star"}</span>`;}],
     ["City", v=>`<span class="text-sm">📍 ${esc(v.city)}</span>`],
@@ -1743,8 +1806,8 @@ function TeamView(){
     <h1 class="font-display text-4xl sm:text-5xl text-maroon mb-4">Build your celebration team</h1>
     <p class="text-muted mb-8 max-w-lg mx-auto">Add a decorator, photographer, makeup artist — anyone you need. See one combined price and the dates when <b>everyone</b> is free.</p>
     <a href="#/browse" class="btn-primary">Find vendors to add →</a></section>`;
-  const usd = team.filter(v=>v.cur==="$"), inr = team.filter(v=>v.cur==="₹");
-  const totUSD = usd.reduce((a,v)=>a+v.price,0), totINR = inr.reduce((a,v)=>a+v.price,0);
+  const byCur = {};
+  team.forEach(v=>{ const c = normCur(v.cur); const g = byCur[c] || (byCur[c] = {n:0, total:0}); g.n++; g.total += Number(v.price)||0; });
   const shared = sharedSlots(team);
   return `<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
     <p class="text-gold font-bold tracking-[.2em] text-xs uppercase mb-2">Bundle & save the back-and-forth</p>
@@ -1757,7 +1820,7 @@ function TeamView(){
           <img src="${v.port[0].img||v.port[0]}" class="w-20 h-20 rounded-xl object-cover" alt="">
           <div class="flex-1 min-w-0"><div class="font-semibold truncate">${esc(v.name)}</div>
           <div class="text-xs text-muted">${catName(v.cat)} · ${stars(v.rating)} ${v.rating.toFixed(1)}</div>
-          <div class="text-sm font-bold text-maroon mt-0.5">from ${fmtPrice(v.cur,v.price)}</div></div>
+          <div class="text-sm font-bold text-maroon mt-0.5">from ${fmtMoney(v.price,v)}</div></div>
           <a href="#/vendor/${v.id}" class="btn-outline btn-sm hidden sm:inline-flex">View</a>
           <button onclick="teamToggle('${v.id}')" class="text-sm text-muted underline">Remove</button>
         </div>`).join("")}
@@ -1765,8 +1828,7 @@ function TeamView(){
       <div class="card p-6 lg:sticky lg:top-24">
         <h3 class="font-display text-2xl font-semibold text-maroon mb-1">Combined estimate</h3>
         <p class="text-xs text-muted mb-4">Sum of starting prices — final quotes confirmed per vendor.</p>
-        ${usd.length?`<div class="flex justify-between py-2 border-b border-cream text-sm"><span>${usd.length} US vendor${usd.length>1?"s":""}</span><b class="font-display text-xl text-maroon">$${totUSD.toLocaleString("en-US")}</b></div>`:""}
-        ${inr.length?`<div class="flex justify-between py-2 border-b border-cream text-sm"><span>${inr.length} India vendor${inr.length>1?"s":""}</span><b class="font-display text-xl text-maroon">₹${totINR.toLocaleString("en-IN")}</b></div>`:""}
+        ${Object.entries(byCur).map(([c,g])=>`<div class="flex justify-between py-2 border-b border-cream text-sm"><span>${g.n} vendor${g.n>1?"s":""} · ${c}</span><b class="font-display text-xl text-maroon">${fmtMoneyCode(g.total,c)}</b></div>`).join("")}
         <button onclick="openTeamBooking()" class="btn-primary w-full justify-center mt-5" ${shared.length?"":"disabled style='opacity:.4'"}>Book team together</button>
         ${shared.length?"":'<p class="text-xs text-muted mt-2">No common free slots in the next 14 days — try removing a vendor.</p>'}
       </div>
@@ -1817,7 +1879,7 @@ function renderBookingModal(){
       <label class="card !rounded-xl p-4 flex items-center gap-4 cursor-pointer ${booking.serviceIdx===i?'!border-maroon !ring-2 !ring-maroon/20':''}">
         <input type="radio" name="bk-svc" ${booking.serviceIdx===i?'checked':''} onchange="booking.serviceIdx=${i};renderBookingModal()" class="w-5 h-5 accent-[#6D1A2D]">
         <div class="flex-1"><div class="font-semibold">${esc(s[0])}</div><div class="text-xs text-muted">per ${s[2]}</div></div>
-        <div class="font-display text-xl font-semibold text-maroon">${fmtPrice(v.cur,s[1])}</div>
+        <div class="font-display text-xl font-semibold text-maroon">${fmtMoney(s[1],v)}</div>
       </label>`).join("")}</div>
     <button onclick="booking.step=2;renderBookingModal()" class="btn-primary w-full justify-center mt-6">Continue →</button>`;
   } else if(booking.step===2){
@@ -1825,7 +1887,7 @@ function renderBookingModal(){
     const slots = booking.date ? slotsFor(v.id, booking.date) : [];
     body = `${bookingStepsBar()}
     <h3 class="font-display text-2xl font-semibold text-maroon mb-1">Pick a date & time</h3>
-    <p class="text-sm text-muted mb-5">${esc(v.services[booking.serviceIdx][0])} · <b class="text-maroon">${fmtPrice(v.cur, v.services[booking.serviceIdx][1])}</b></p>
+    <p class="text-sm text-muted mb-5">${esc(v.services[booking.serviceIdx][0])} · <b class="text-maroon">${fmtMoney(v.services[booking.serviceIdx][1], v)}</b></p>
     <label class="lbl">Date</label>
     <div class="flex gap-2 overflow-x-auto pb-3 mb-4">${dates.map(ds=>`
       <button class="date-pill shrink-0 ${booking.date===ds?'selected':''}" onclick="booking.date='${ds}';booking.slot=null;renderBookingModal()">
@@ -1854,7 +1916,7 @@ function renderBookingModal(){
     <textarea id="bk-notes" class="field mb-2" rows="3" placeholder="Venue, theme, guest count, anything they should know…">${esc(booking.notes)}</textarea>
     <div class="bg-gold-pale border border-gold-light rounded-xl p-4 text-sm mt-4 flex justify-between items-center">
       <span><b>${esc(s[0])}</b><br><span class="text-muted">${prettyDate(booking.date)} · ${booking.slot}</span></span>
-      <span class="font-display text-2xl font-semibold text-maroon">${fmtPrice(v.cur,s[1])}</span>
+      <span class="font-display text-2xl font-semibold text-maroon">${fmtMoney(s[1],v)}</span>
     </div>
     <div class="flex gap-3 mt-6"><button onclick="booking.step=2;renderBookingModal()" class="btn-outline flex-1 justify-center">← Back</button>
     <button onclick="confirmBooking()" class="btn-primary flex-1 justify-center">Confirm booking ✦</button></div>`;
@@ -1901,7 +1963,7 @@ async function confirmBooking(){
       <div class="flex justify-between"><span class="text-muted">Vendor</span><b>${esc(v.name)}</b></div>
       <div class="flex justify-between"><span class="text-muted">Service</span><b>${esc(s[0])}</b></div>
       <div class="flex justify-between"><span class="text-muted">When</span><b>${prettyDate(booking.date)} · ${booking.slot}</b></div>
-      <div class="flex justify-between"><span class="text-muted">Estimate</span><b class="font-display text-lg text-maroon">${fmtPrice(rec.cur,rec.price)}</b></div>
+      <div class="flex justify-between"><span class="text-muted">Estimate</span><b class="font-display text-lg text-maroon">${fmtMoneyCode(rec.price,rec.cur)}</b></div>
     </div>
     <p class="text-xs text-muted mb-6">${esc(v.name)} confirms within 24 hours on ${esc(phone)}. No payment due now.</p>
     <div class="flex gap-3 justify-center"><a href="#/bookings" onclick="closeModal()" class="btn-primary btn-sm">View my bookings</a>
@@ -1966,7 +2028,7 @@ function confirmTeamBooking(ds){
 
 /* ═══════════ ONBOARDING ═══════════ */
 let ob = null;
-function freshOb(){ return { step:1, name:"", cat:"", city:"", phone:"", tag:"", bio:"",
+function freshOb(){ return { step:1, name:"", cat:"", city:"", country:"US", cur:"USD", phone:"", tag:"", bio:"",
   creds:[{label:"",detail:""}],
   services:[{name:"",price:"",unit:"event"}], selImgs:[], portMeta:{}, days:["Sat","Sun"], slots:["10:00 AM","4:00 PM"],
   idCountry:"", idType:"", idNum:"", idBiz:"", idDone:false }; }
@@ -2014,6 +2076,8 @@ function OnboardView(){
       <div><label class="lbl">Phone *</label><input id="ob-phone" class="field" value="${esc(ob.phone)}" placeholder="+1 555 000 1234"></div>
       <div><label class="lbl">Category *</label><select id="ob-cat" class="field"><option value="">Choose…</option>${CATEGORIES.map(c=>`<option value="${c.id}" ${ob.cat===c.id?"selected":""}>${c.name}</option>`).join("")}</select></div>
       <div><label class="lbl">City *</label><select id="ob-city" class="field"><option value="">Choose…</option>${CITIES.map(c=>`<option ${ob.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div><label class="lbl">Country *</label><select id="ob-country" class="field" onchange="ob.country=this.value;var ci=COUNTRY_INFO[ob.country];if(ci){ob.cur=ci.currency;var s=document.getElementById('ob-cur');if(s)s.value=ci.currency;}">${Object.entries(COUNTRY_INFO).map(([cc,i])=>`<option value="${cc}" ${normCountry(ob.country)===cc?"selected":""}>${i.flag} ${i.name}</option>`).join("")}</select></div>
+      <div><label class="lbl">Currency *</label><select id="ob-cur" class="field" onchange="ob.cur=this.value">${Object.keys(CUR_ALIASES).filter(c=>/^[A-Z]{3}$/.test(c)).map(c=>`<option ${normCur(ob.cur)===c?"selected":""}>${c}</option>`).join("")}</select></div>
       <div><label class="lbl">One-line tagline</label><input id="ob-tag" class="field" value="${esc(ob.tag)}" placeholder="e.g., Balloons that break the internet"></div>
     </div>
     <label class="lbl mt-4">Short bio</label><textarea id="ob-bio" class="field" rows="3" placeholder="Your story, your style, what makes you different…">${esc(ob.bio)}</textarea>
@@ -2051,7 +2115,7 @@ function OnboardView(){
       <div class="card p-3 flex gap-3 items-center">
         <img src="${src}" class="w-16 h-16 rounded-lg object-cover shrink-0">
         <input class="field !py-2 text-sm flex-1" placeholder="Caption (e.g., Mandap setup)" value="${esc(m.label)}" oninput="obSetMeta('${src}','label',this.value)">
-        <input class="field !py-2 text-sm !w-28" type="number" placeholder="Cost $" value="${esc(m.budget)}" oninput="obSetMeta('${src}','budget',this.value)">
+        <input class="field !py-2 text-sm !w-28" type="number" placeholder="Cost (${normCur(ob.cur)})" value="${esc(m.budget)}" oninput="obSetMeta('${src}','budget',this.value)">
         <input class="field !py-2 text-sm !w-24" type="number" placeholder="Guests" value="${esc(m.guests)}" oninput="obSetMeta('${src}','guests',this.value)">
       </div>`;}).join("")}</div>`:`<p class="text-sm text-muted">Select at least 2 photos above to continue.</p>`}`;
   } else if(ob.step===4){
@@ -2103,7 +2167,7 @@ function OnboardRerender(){ obCollect(); const app=document.getElementById("app"
 function obCollect(){
   if(!ob) return;
   const g = id => { const el=document.getElementById(id); return el?el.value.trim():""; };
-  if(ob.step===1){ ob.name=g("ob-name"); ob.cat=g("ob-cat"); ob.city=g("ob-city"); ob.phone=g("ob-phone"); ob.tag=g("ob-tag"); ob.bio=g("ob-bio"); }
+  if(ob.step===1){ ob.name=g("ob-name"); ob.cat=g("ob-cat"); ob.city=g("ob-city"); ob.country=g("ob-country")||ob.country||"US"; ob.cur=g("ob-cur")||ob.cur||"USD"; ob.phone=g("ob-phone"); ob.tag=g("ob-tag"); ob.bio=g("ob-bio"); }
   if(ob.step===4){ ob.idCountry=g("ob-idcountry"); ob.idType=g("ob-idtype"); ob.idNum=g("ob-idnum"); ob.idBiz=g("ob-idbiz"); }
 }
 function obNext(){
@@ -2127,10 +2191,8 @@ function obToggleDay(d){ ob.days = ob.days.includes(d)?ob.days.filter(x=>x!==d):
 function obToggleSlot(t){ ob.slots = ob.slots.includes(t)?ob.slots.filter(x=>x!==t):ob.slots.concat([t]); OnboardRerender(); }
 function publishVendor(){
   obCollect();
-  const inIndia = ["Hyderabad","Chennai","Bangalore"].includes(ob.city);
-  const inUAE = ob.city==="Dubai";
-  const cur = inIndia ? "₹" : inUAE ? "AED" : "$";
-  const country = inIndia ? "India" : inUAE ? "UAE" : "USA";
+  const country = normCountry(ob.country) || "US";
+  const cur = normCur(ob.cur) || ((COUNTRY_INFO[country]||{}).currency) || "USD";
   const services = ob.services.map(s=>[s.name.trim(), parseFloat(s.price), s.unit]);
   const port = ob.selImgs.map(src=>{ const m=ob.portMeta[src]||{}; return { img:src, label:m.label||"", budget:m.budget?parseFloat(m.budget):null, guests:m.guests?parseInt(m.guests):null }; });
   const v = {
@@ -2170,7 +2232,7 @@ function BookingsView(){
                  <div class="flex flex-wrap gap-1.5 mt-2">${b.vendors.map(x=>`<a href="#/vendor/${x.id}" class="badge badge-cat hover:bg-maroon hover:text-white transition">${esc(x.name)}</a>`).join("")}</div>`
               : `<h3 class="font-display text-2xl font-semibold text-maroon">${esc(b.vendorName)}</h3>
                  <p class="text-sm text-muted">${esc(b.service)} · ${catName(b.cat)}</p>`}
-            <p class="text-sm mt-2">📅 ${prettyDate(b.date)} · ${esc(b.slot)} ${b.type==="single"?`· <b class="text-maroon">${fmtPrice(b.cur,b.price)}</b>`:``}</p>
+            <p class="text-sm mt-2">📅 ${prettyDate(b.date)} · ${esc(b.slot)} ${b.type==="single"?`· <b class="text-maroon">${fmtMoneyCode(b.price,b.cur)}</b>`:``}</p>
             ${b.notes?`<p class="text-xs text-muted mt-1">“${esc(b.notes)}”</p>`:""}
           </div>
           <button onclick="cancelBooking('${b.ref}')" class="btn-outline btn-sm">Cancel</button>
@@ -2205,7 +2267,7 @@ function fastTrackModal(b){
           <span class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shrink-0" style="background:${avatarBg(x.v.name)}">${initials(x.v.name)}</span>
           <div class="flex-1 min-w-0">
             <div class="font-semibold truncate">${esc(x.v.name)} ${x.nearby?'<span class="badge badge-cat ml-1">Nearby</span>':""}</div>
-            <div class="text-xs text-muted">${stars(x.v.rating)} ${x.v.rating.toFixed(1)} · 📍 ${esc(x.v.city)} · from ${fmtPrice(x.v.cur,x.v.price)}</div>
+            <div class="text-xs text-muted">${stars(x.v.rating)} ${x.v.rating.toFixed(1)} · 📍 ${esc(x.v.city)} · from ${fmtMoney(x.v.price,x.v)}</div>
             <div class="text-xs mt-1 text-emerald-700 font-semibold">✅ Free ${prettyDate(b.date)} · ${esc(x.slot)}</div>
           </div>
           <button onclick="closeModal();openBooking('${x.v.id}',{date:'${b.date}',slot:'${x.slot}'})" class="btn-primary btn-sm shrink-0">Book instead</button>
@@ -2218,7 +2280,7 @@ function fastTrackModal(b){
           <span class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shrink-0" style="background:${avatarBg(v.name)}">${initials(v.name)}</span>
           <div class="flex-1 min-w-0">
             <div class="font-semibold truncate">${esc(v.name)}</div>
-            <div class="text-xs text-muted">${stars(v.rating)} ${v.rating.toFixed(1)} · 📍 ${esc(v.city)} · from ${fmtPrice(v.cur,v.price)}</div>
+            <div class="text-xs text-muted">${stars(v.rating)} ${v.rating.toFixed(1)} · 📍 ${esc(v.city)} · from ${fmtMoney(v.price,v)}</div>
           </div>
           <span class="text-gold text-xl">→</span></a>`).join("") || `<p class="text-sm text-muted">No similar vendors yet — check the <a href="#/browse" onclick="closeModal()" class="underline text-maroon">browse page</a>.</p>`}</div>`;
   }
@@ -2425,15 +2487,18 @@ const AI_CITY_ALIASES = { "new york":"New York", nyc:"New York", "bay area":"Bay
   chennai:"Chennai", hyderabad:"Hyderabad", dubai:"Dubai" };
 
 function aiParseBudget(t, city){
-  let budget=null, bcur="$";
-  let m = t.match(/₹\s?([\d,]+)/) || t.match(/([\d,]+)\s?(₹|rs\.?|rupees)/) || t.match(/rs\.?\s?([\d,]+)/);
-  if(m){ budget=parseInt(m[1].replace(/,/g,"")); bcur="₹"; }
-  else { m = t.match(/\$\s?([\d,]+)/) || t.match(/([\d,]+)\s?(dollars|usd|bucks)/);
-    if(m) budget=parseInt(m[1].replace(/,/g,"")); }
+  let budget=null, bcur="USD";
+  const _n2 = s => parseInt(s.replace(/,/g,""),10);
+  let m = t.match(/₹\s?([\d,]+)/) || t.match(/([\d,]+)\s?(₹|rs\.?|rupees?|inr)\b/) || t.match(/\brs\.?\s?([\d,]+)/);
+  if(m){ budget=_n2(m[1]); bcur="INR"; }
+  else if((m = t.match(/\$\s?([\d,]+)/) || t.match(/([\d,]+)\s?(\$|dollars?|usd|bucks)\b/) || t.match(/\busd\s?([\d,]+)/))){ budget=_n2(m[1]); bcur="USD"; }
+  else if((m = t.match(/([\d,]+)\s?(aed|dirhams?)\b/) || t.match(/\baed\s?([\d,]+)/))){ budget=_n2(m[1]); bcur="AED"; }
+  else if((m = t.match(/£\s?([\d,]+)/) || t.match(/([\d,]+)\s?(£|pounds?|gbp)\b/))){ budget=_n2(m[1]); bcur="GBP"; }
+  else if((m = t.match(/€\s?([\d,]+)/) || t.match(/([\d,]+)\s?(€|euros?|eur)\b/))){ budget=_n2(m[1]); bcur="EUR"; }
   if(!budget){
-    m = t.match(/(?:under|within|around|about|up to|max)\s+(?:₹|\$)?\s?([\d,]+)/);
-    if(m){ budget=parseInt(m[1].replace(/,/g,""));
-      bcur = (city && ["Hyderabad","Chennai","Bangalore"].includes(city)) ? "₹" : "$"; }
+    m = t.match(/(?:under|within|around|about|up to|max)\s+(?:₹|\$|£|€)?\s?([\d,]+)/);
+    if(m){ budget=_n2(m[1]);
+      bcur = (city && ["Hyderabad","Chennai","Bangalore"].includes(city)) ? "INR" : city==="Dubai" ? "AED" : "USD"; }
   }
   let tier=null;
   if(/\b(cheap|cheaper|cheapest|budget|affordable|low cost|low-cost|economical)\b/.test(t)) tier="low";
@@ -2481,7 +2546,7 @@ function aiParse(raw, prev){
   if(b.tier) intent.tier=b.tier;
   // follow-up: "cheaper" without a number → shave 30% off last budget
   if(/cheaper|more affordable|lower budget|tighten/.test(t) && !b.budget && prev && prev.budget){
-    intent.budget = Math.round(prev.budget*0.7); intent.bcur = prev.bcur||"$"; intent.tier="low";
+    intent.budget = Math.round(prev.budget*0.7); intent.bcur = normCur(prev.bcur); intent.tier="low";
   }
   // style
   intent.styles = intent.styles || [];
@@ -2502,7 +2567,7 @@ function aiScoreVendors(intent, tokens){
   // city: prefer exact city, fall back to same region, then everywhere
   if(intent.city){
     const inRegion = v => v.city===intent.city ? 2 :
-      ((v.country==="India")===["Hyderabad","Chennai","Bangalore"].includes(intent.city) ? 1 : 0);
+      ((v.country==="IN")===["Hyderabad","Chennai","Bangalore"].includes(intent.city) ? 1 : 0);
     const exact = cands.filter(v=>inRegion(v)===2);
     const region = cands.filter(v=>inRegion(v)===1);
     cands = exact.length ? exact : (region.length ? region : cands);
@@ -2528,10 +2593,10 @@ function aiScoreVendors(intent, tokens){
     if(v.newcomer) s+=0.5;
     // (c) budget fit — hard cap: never show vendors >1.5x an explicit budget
     if(intent.budget){
-      const busd = intent.bcur==="₹" ? intent.budget/83 : intent.budget;
+      const busd = approxUSD(intent.budget, intent.bcur);
       const pusd = priceUSD(v);
       if(pusd > busd*1.5) return null;
-      if(pusd <= busd){ s+=2; why.push("fits your "+fmtPrice(intent.bcur,intent.budget)+" budget"); }
+      if(pusd <= busd){ s+=2; why.push("fits your "+fmtMoneyCode(intent.budget,intent.bcur)+" budget"); }
       else if(pusd <= busd*1.25) s+=0.5;
       else s -= 2;
     } else if(intent.tier==="low"){
@@ -2541,7 +2606,7 @@ function aiScoreVendors(intent, tokens){
     if(intent.city){
       if(v.city===intent.city){ s+=3; why.push("in "+intent.city); }
       else {
-        const vIn = v.country==="India", cIn = ["Hyderabad","Chennai","Bangalore"].includes(intent.city);
+        const vIn = v.country==="IN", cIn = ["Hyderabad","Chennai","Bangalore"].includes(intent.city);
         if(vIn===cIn) s+=1;
       }
     }
@@ -2607,7 +2672,7 @@ async function aiRespond(raw){
   const rm = raw.toUpperCase().match(/UTS[\s-]?([A-Z0-9]{6})/);
   if(rm){
     const b = await aiLookupBooking("UTS"+rm[1]);
-    if(b) return { html:`Found it! ✦<br><b>${esc(b.vendorName)}</b><br>📅 ${b.date?prettyDate(b.date):"—"}${b.slot?" · "+esc(b.slot):""}<br>Status: <b class="text-green-700">${esc(b.status)}</b>${b.price!=null?`<br>Agreed price: <b>${fmtPrice(b.cur||"$",b.price)}</b>`:""}<br><span class="text-xs text-muted">Ref ${esc(b.ref)}</span>`,
+    if(b) return { html:`Found it! ✦<br><b>${esc(b.vendorName)}</b><br>📅 ${b.date?prettyDate(b.date):"—"}${b.slot?" · "+esc(b.slot):""}<br>Status: <b class="text-green-700">${esc(b.status)}</b>${b.price!=null?`<br>Agreed price: <b>${fmtMoneyCode(b.price,b.cur)}</b>`:""}<br><span class="text-xs text-muted">Ref ${esc(b.ref)}</span>`,
       chips:["Cancel this booking","Find similar vendors"] };
     return { html:`Hmm, I couldn't find <b>${esc(rm[0])}</b>. Double-check the reference from your confirmation — it's 6 characters after UTS, like UTS-5M5WDQ. Or open <b>My bookings</b> to see all of them.`, chips:["How does booking work?"] };
   }
@@ -2638,7 +2703,7 @@ async function aiRespond(raw){
         <div class="ai-vbody">
           <div class="font-semibold text-sm text-maroon">${esc(v.name)}</div>
           <div class="flex items-center gap-1.5 text-xs text-muted mt-0.5">${stars(v.rating)}<b>${v.rating.toFixed(1)}</b> (${v.rc}) · ${esc(v.city)}</div>
-          <div class="text-xs mt-1">Starting at <b class="text-maroon">${fmtPrice(v.cur,v.price)}</b></div>
+          <div class="text-xs mt-1">Starting at <b class="text-maroon">${fmtMoney(v.price,v)}</b></div>
           ${why.length?`<div class="ai-why">✦ ${esc(why.join(" · "))}</div>`:""}
           <div class="ai-vbtns">
             <a class="ai-vbtn-view" href="#/vendor/${v.id}" onclick="toggleAiBot(false)">View</a>

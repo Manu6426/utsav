@@ -36,10 +36,13 @@ public class Vendor {
     @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
+    /** Vendor's home country as ISO 3166-1 alpha-2 ("US", "IN", "AE", "GB" ...).
+     *  The frontend renders all money in this country's currency and number format. */
+    @Column(nullable = false, length = 2)
     private String country;
 
-    /** Currency symbol as shown in the frontend: "$", "₹", "AED". */
+    /** ISO 4217 currency code ("USD", "INR", "AED", "GBP" ...). Never a bare symbol:
+     *  "$" is ambiguous across countries, the code is not. */
     @Column(nullable = false, length = 8)
     private String currency;
 

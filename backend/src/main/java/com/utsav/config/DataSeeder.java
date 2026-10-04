@@ -76,7 +76,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedVendors() {
-        seedVendor("meera", "Meera's Marigold Events", "decorators", "Houston", "USA", "$",
+        seedVendor("meera", "Meera's Marigold Events", "decorators", "Houston", "US", "USD",
                 4.9, 132, 1200, true, false,
                 "Mandaps that smell like home.", "Meera has dressed 300+ mandaps across Texas over 9 years. Her team grows its own marigolds — yes, really — and builds stages that photograph like a dream. Famous for calm, on-time setups even when the baraat runs two hours late.",
                 List.of("English", "Hindi", "Telugu"),
@@ -92,7 +92,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Ananya R.", "5", "Sep 2026", "The mandap made my mother cry. Meera's team set up 400 flowers while we were still at the temple. Flawless."}, new String[]{"Divya S.", "5", "Aug 2026", "On time, on budget, and the stage looked straight out of a movie. Worth every dollar."}, new String[]{"Kavya M.", "4", "Jun 2026", "Gorgeous work. One backdrop panel arrived late but they fixed it before guests walked in."}, new String[]{"Rohit P.", "5", "May 2026", "They handled my sister's sangeet stage overnight. Magicians, honestly."}),
                 List.of("lens", "priya"));
 
-        seedVendor("priya", "Glam by Priya", "makeup", "New York", "USA", "$",
+        seedVendor("priya", "Glam by Priya", "makeup", "New York", "US", "USD",
                 4.8, 214, 350, true, false,
                 "Red lips approved by 200+ brides.", "Priya is a certified pro artist who specializes in South Asian bridal glam — the kind that lasts through pheras, a hundred hugs, and happy tears. Trial sessions at her Queens studio.",
                 List.of("English", "Hindi", "Tamil"),
@@ -106,7 +106,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Sneha K.", "5", "Sep 2026", "My makeup survived 14 hours, three outfit changes, and my crying. Priya is a miracle worker."}, new String[]{"Lakshmi V.", "5", "Jul 2026", "She understood 'soft but make it bridal' perfectly. Trial was so thorough."}, new String[]{"Anitha D.", "4", "May 2026", "Beautiful work, slightly rushed during the big-morning rush — book the trial."}, new String[]{"Farah N.", "5", "Apr 2026", "Did my whole bridal party of six. Everyone looked like themselves, just luminous."}),
                 List.of("aisha"));
 
-        seedVendor("aisha", "Henna by Aisha", "mehendi", "Bay Area", "USA", "$",
+        seedVendor("aisha", "Henna by Aisha", "mehendi", "Bay Area", "US", "USD",
                 5.0, 6, 80, true, true,
                 "Bridal henna, party henna, tiny tattoos.", "Aisha learned henna from her grandmother in Hyderabad and turned a dorm-room side hustle into the Bay Area's most-booked newcomer. Intricate bridal work in under four hours, organic cones only.",
                 List.of("English", "Hindi", "Urdu"),
@@ -119,7 +119,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Zara H.", "5", "Sep 2026", "The stain was DARK for a week. My bridal henna got more compliments than my lehenga."}, new String[]{"Priya N.", "5", "Aug 2026", "Booked her for my sister's mehendi morning — fast, sweet, insanely detailed."}, new String[]{"Meera J.", "5", "Jul 2026", "Newcomer prices, veteran skills. Get her before she raises rates!"}),
                 List.of("priya"));
 
-        seedVendor("lens", "Lens & Light Studio", "photographers", "Dallas", "USA", "$",
+        seedVendor("lens", "Lens & Light Studio", "photographers", "Dallas", "US", "USD",
                 4.9, 98, 1500, true, false,
                 "Candid first, posed never.", "Husband-wife duo Arjun and Sara shoot 40+ Indian weddings a year. Two shooters, a same-day teaser reel, and a gallery your grandchildren will fight over.",
                 List.of("English", "Hindi"),
@@ -133,7 +133,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Vikram T.", "5", "Sep 2026", "They caught my dad's expression when he saw my bride. I cried watching the teaser."}, new String[]{"Nisha R.", "5", "Aug 2026", "Invisible during the ceremony, everywhere that mattered. 900 stunning photos."}, new String[]{"Aditi L.", "4", "Jun 2026", "Gorgeous gallery. Delivery took 5 weeks, but worth the wait."}),
                 List.of("meera"));
 
-        seedVendor("natya", "Natya Beats", "choreographers", "Boston", "USA", "$",
+        seedVendor("natya", "Natya Beats", "choreographers", "Boston", "US", "USD",
                 4.9, 8, 60, true, true,
                 "Your cousins WILL nail the hook step.", "Classically trained in Bharatanatyam, fluent in Bollywood. Natya Beats has taught 200+ family members their sangeet routines — including one very reluctant chacha who now won't sit down.",
                 List.of("English", "Hindi", "Tamil"),
@@ -146,7 +146,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Deepa K.", "5", "Sep 2026", "She taught 14 of us — ages 8 to 68 — a 4-minute medley in 4 sessions. Standing ovation."}, new String[]{"Sanjay M.", "5", "Aug 2026", "Patient, funny, and our sangeet video looks professional."}, new String[]{"Ritu S.", "4", "Jul 2026", "Great with kids. Wish we'd booked more sessions!"}),
                 List.of("arjun"));
 
-        seedVendor("arjun", "MC Arjun Rao", "hosts", "New York", "USA", "$",
+        seedVendor("arjun", "MC Arjun Rao", "hosts", "New York", "US", "USD",
                 4.8, 76, 400, true, false,
                 "Bilingual banter, zero awkward silences.", "Arjun has hosted 150+ sangeets and receptions across the tri-state. English-Hindi-Telugu on the mic, games the elders actually enjoy, and timelines that stay on track.",
                 List.of("English", "Hindi", "Telugu"),
@@ -159,7 +159,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Kiran B.", "5", "Sep 2026", "He had both families laughing within ten minutes. The dumb charades round was legendary."}, new String[]{"Shreya P.", "5", "Jul 2026", "Professional, punctual, and kept our 6-hour sangeet moving perfectly."}, new String[]{"Amit J.", "4", "May 2026", "Great energy. Book early — he's in demand."}),
                 List.of("natya"));
 
-        seedVendor("everafter", "EverAfter Decor", "decorators", "Bay Area", "USA", "$",
+        seedVendor("everafter", "EverAfter Decor", "decorators", "Bay Area", "US", "USD",
                 5.0, 5, 600, true, true,
                 "Pinterest boards, but real.", "Two best friends, one storage unit full of drapes, and five flawless events. EverAfter does modern Indian decor — think pampas grass meets marigold, at newcomer prices.",
                 List.of("English", "Hindi"),
@@ -173,7 +173,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Neha G.", "5", "Sep 2026", "Our backyard wedding looked like a venue. They worked with our tiny budget so kindly."}, new String[]{"Sara F.", "5", "Aug 2026", "The arch was all over Instagram. Setup and teardown were silent and fast."}),
                 List.of());
 
-        seedVendor("glowcraft", "GlowCraft Artistry", "makeup", "Houston", "USA", "$",
+        seedVendor("glowcraft", "GlowCraft Artistry", "makeup", "Houston", "US", "USD",
                 4.9, 7, 180, true, true,
                 "Soft glam that survives happy tears.", "Nisha worked backstage at fashion week before moving to Houston. Airbrush bridal looks at prices that don't need a family meeting — and lashes that stay put.",
                 List.of("English", "Hindi", "Gujarati"),
@@ -186,7 +186,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Pooja V.", "5", "Sep 2026", "Airbrush lasted 12 hours in Houston humidity. Enough said."}, new String[]{"Rina D.", "5", "Jul 2026", "So gentle and precise. My engagement photos are flawless."}),
                 List.of());
 
-        seedVendor("shubh", "Shubh Decor Studio", "decorators", "Hyderabad", "India", "₹",
+        seedVendor("shubh", "Shubh Decor Studio", "decorators", "Hyderabad", "IN", "INR",
                 4.8, 187, 25000, true, false,
                 "Big-fat-wedding decor, honest prices.", "Twelve years, 500+ weddings across Telangana and Andhra Pradesh. Shubh Decor owns its flowers, trussing, and lighting — which is why their quotes never have surprises.",
                 List.of("Telugu", "Hindi", "English"),
@@ -200,7 +200,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Sravani K.", "5", "Sep 2026", "They decorated our whole wedding in one night. My in-laws are still talking about the entrance."}, new String[]{"Harish G.", "5", "Aug 2026", "Transparent billing, no last-minute extras. Rare in this industry."}, new String[]{"Lalitha M.", "4", "Jun 2026", "Beautiful mandap. Flower freshness could be better in summer — ask for seasonal blooms."}),
                 List.of("karthik"));
 
-        seedVendor("kaya", "Kaya Kalp Makeup", "makeup", "Chennai", "India", "₹",
+        seedVendor("kaya", "Kaya Kalp Makeup", "makeup", "Chennai", "IN", "INR",
                 4.9, 143, 8000, true, false,
                 "Muhurtham-proof makeup.", "Lakshmi's HD bridal looks stay put through six-hour muhurthams and Chennai humidity. Trials at her Adyar studio include a full skin-prep consultation.",
                 List.of("Tamil", "English", "Hindi"),
@@ -213,7 +213,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Divya R.", "5", "Sep 2026", "Sweat-proof through a June muhurtham. My photos need zero retouching."}, new String[]{"Janani S.", "5", "Jul 2026", "The trial alone was worth it — she fixed my skincare routine too."}),
                 List.of("ritu"));
 
-        seedVendor("ritu", "Mehendi Magic by Ritu", "mehendi", "Bangalore", "India", "₹",
+        seedVendor("ritu", "Mehendi Magic by Ritu", "mehendi", "Bangalore", "IN", "INR",
                 5.0, 9, 2100, true, true,
                 "Full bridal in 4 hours flat.", "Ritu does three weddings a weekend in peak season and still takes party bookings. Organic henna, deep-stain guarantee, and designs from minimal chic to full bridal.",
                 List.of("Hindi", "English", "Kannada"),
@@ -226,7 +226,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Shalini P.", "5", "Sep 2026", "Darkest stain I've ever had. She finished both hands in 3.5 hours."}, new String[]{"Nandini K.", "5", "Aug 2026", "So fast without rushing the detail. Highly recommended."}),
                 List.of("kaya"));
 
-        seedVendor("karthik", "Frames by Karthik", "photographers", "Chennai", "India", "₹",
+        seedVendor("karthik", "Frames by Karthik", "photographers", "Chennai", "IN", "INR",
                 4.9, 11, 15000, true, true,
                 "Temple-town storytelling.", "Karthik shot his first wedding on a borrowed camera; eleven 5-star reviews later, he's Chennai's worst-kept secret. Drone coverage included in every package.",
                 List.of("Tamil", "English"),
@@ -240,7 +240,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Arun V.", "5", "Sep 2026", "The drone shot of our temple wedding is framed in our living room now."}, new String[]{"Meenakshi D.", "5", "Jul 2026", "Unobtrusive, creative, and half the price of the big studios."}),
                 List.of("shubh"));
 
-        seedVendor("dhoom", "Dhoom Dance Crew", "choreographers", "Hyderabad", "India", "₹",
+        seedVendor("dhoom", "Dhoom Dance Crew", "choreographers", "Hyderabad", "IN", "INR",
                 4.8, 89, 5000, true, false,
                 "Sangeet choreography in 6 sessions.", "Four dancers, one dhol player on call, and sangeet routines that uncles can actually learn. Dhoom has choreographed 200+ family performances across two states.",
                 List.of("Telugu", "Hindi", "English"),
@@ -253,7 +253,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Sandeep R.", "5", "Sep 2026", "My 60-year-old father did a hook step. Enough said."}, new String[]{"Geetha N.", "5", "Aug 2026", "Six sessions, zero stress, one unforgettable sangeet."}),
                 List.of("divya"));
 
-        seedVendor("divya", "Anchor Divya", "hosts", "Bangalore", "India", "₹",
+        seedVendor("divya", "Anchor Divya", "hosts", "Bangalore", "IN", "INR",
                 5.0, 4, 7000, true, true,
                 "Games your athai will actually play.", "Ex-RJ Divya brings radio energy to sangeets and birthdays. Kannada, Hindi, English, Tamil — she'll get your shyest cousin on stage and keep the aunties laughing.",
                 List.of("Kannada", "Hindi", "English", "Tamil"),
@@ -265,7 +265,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.<String[]>of(new String[]{"Rakshita S.", "5", "Sep 2026", "She handled a 300-guest sangeet like a pro. The couple's game round was hilarious."}),
                 List.of("dhoom"));
 
-        seedVendor("petals", "Petal & Pine Events", "decorators", "Chennai", "India", "₹",
+        seedVendor("petals", "Petal & Pine Events", "decorators", "Chennai", "IN", "INR",
                 4.7, 12, 9000, true, true,
                 "Birthdays, half-saree ceremonies, and small joys.", "Specialists in intimate celebrations — half-saree functions, seemanthams, first birthdays. Thoughtful, elegant decor that doesn't need a wedding budget.",
                 List.of("Tamil", "English"),
@@ -278,7 +278,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Kavitha J.", "5", "Aug 2026", "My daughter's half-saree function looked straight out of a magazine."}, new String[]{"Revathi A.", "4", "Jul 2026", "Lovely work, very warm team. Slightly delayed setup — plan buffer time."}),
                 List.of());
 
-        seedVendor("marcus", "DJ Marcus Cole", "djs", "Boston", "USA", "$",
+        seedVendor("marcus", "DJ Marcus Cole", "djs", "Boston", "US", "USD",
                 4.8, 87, 500, true, false,
                 "From Bollywood to Bad Bunny, one dance floor.", "Marcus DJs 60+ South Asian weddings a year. Bhangra-to-Bad-Bunny transitions, dhol player on request, and a dance floor that empties only when the lights come on.",
                 List.of("English"),
@@ -291,7 +291,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Jessica T.", "5", "Oct 2026", "He read our crowd perfectly — my Indian side and his American side never left the floor."}, new String[]{"Aarav M.", "5", "Sep 2026", "The bhangra-to-hip-hop transitions were unreal. Best sangeet ever."}),
                 List.of("confetti"));
 
-        seedVendor("confetti", "Confetti & Co.", "decorators", "Dallas", "USA", "$",
+        seedVendor("confetti", "Confetti & Co.", "decorators", "Dallas", "US", "USD",
                 4.9, 6, 250, true, true,
                 "Balloon arches that break the internet.", "Started in a garage in 2024, now Dallas's go-to for birthdays and baby showers. Organic balloon garlands, neon signs, and genuine same-week availability.",
                 List.of("English", "Spanish"),
@@ -304,7 +304,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Emily R.", "5", "Sep 2026", "The garland was the backdrop of every photo. Setup took 40 minutes flat."}, new String[]{"Sofia L.", "5", "Aug 2026", "Affordable, adorable, and so easy to work with."}),
                 List.of("marcus"));
 
-        seedVendor("hudson", "Hudson & Harvest", "caterers", "New York", "USA", "$",
+        seedVendor("hudson", "Hudson & Harvest", "caterers", "New York", "US", "USD",
                 4.7, 112, 900, true, false,
                 "Farm-to-table, chaat to charcuterie.", "A catering company that actually gets Indian weddings — live chaat counters next to a carving station. Serving 50 to 500 guests across the tri-state area.",
                 List.of("English", "Hindi"),
@@ -317,7 +317,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Rajesh K.", "4", "Sep 2026", "The chaat counter had a longer line than the bar. Food was excellent, service slightly slow at peak."}, new String[]{"Michelle D.", "5", "Aug 2026", "They catered our 200-person Diwali gala flawlessly."}),
                 List.of());
 
-        seedVendor("wicked", "Wicked Whimsy Studios", "decorators", "Bay Area", "USA", "$",
+        seedVendor("wicked", "Wicked Whimsy Studios", "decorators", "Bay Area", "US", "USD",
                 5.0, 5, 350, true, true,
                 "Halloween haunted houses, Christmas wonderlands.", "Prop stylists obsessed with October and December. Haunted house builds, spooky tablescapes, and Christmas installs that belong in movies — at newcomer prices.",
                 List.of("English"),
@@ -330,7 +330,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Hannah W.", "5", "Oct 2026", "Our house was THE house on the street. Kids are still talking about it."}, new String[]{"Chris B.", "5", "Sep 2026", "Insanely creative. The floating candles! The fog! Worth double."}),
                 List.of());
 
-        seedVendor("zahra", "Zahra Luxe Events", "decorators", "Dubai", "UAE", "AED",
+        seedVendor("zahra", "Zahra Luxe Events", "decorators", "Dubai", "AE", "AED",
                 4.9, 143, 4500, true, false,
                 "Arabian-night luxury meets desi grandeur.", "Dubai's go-to team for big-fat weddings — Indian, Arab, and fusion. Ten years across Palm Jumeirah ballrooms and desert venues. Emirates ID verified, trade-licensed, and famous for setups that photograph like film sets.",
                 List.of("English", "Hindi", "Arabic", "Urdu"),
@@ -344,7 +344,7 @@ public class DataSeeder implements CommandLineRunner {
                 List.of(new String[]{"Fatima A.", "5", "Sep 2026", "Our Nikah stage looked like a palace. Guests from three countries asked who did the decor."}, new String[]{"Rohan M.", "5", "Aug 2026", "Sangeet production with LED walls and dhol entry — flawless."}, new String[]{"Sara K.", "4", "Jul 2026", "Premium pricing, premium result. Book early, they fill fast."}),
                 List.of("dunes"));
 
-        seedVendor("dunes", "Dunes & Vows Films", "photographers", "Dubai", "UAE", "AED",
+        seedVendor("dunes", "Dunes & Vows Films", "photographers", "Dubai", "AE", "AED",
                 5.0, 9, 3500, true, true,
                 "Desert golden hour is our studio.", "A young duo shooting weddings across the dunes and the Marina. Drone + candid, same-day edits, and prices that undercut the big studios while the portfolio grows. Emirates ID verified.",
                 List.of("English", "Hindi", "Malayalam"),

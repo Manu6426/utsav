@@ -185,7 +185,7 @@ tailwind.config = {
    runs with zero tooling. */
 "use strict";
 
-const DEPLOYED_API_URL = null;  /* ← filled in when the backend is hosted (e.g. Render) */
+const DEPLOYED_API_URL = "https://utsav-api-p36h.onrender.com/api";  /* ← Render-hosted backend */
 const _apiOverride = new URLSearchParams(location.search).get("api");
 const API_BASE_URL = _apiOverride
   || (DEPLOYED_API_URL && location.hostname.endsWith("github.io") ? DEPLOYED_API_URL : "http://localhost:8080/api");  /* ← the single knob: point at your backend here */

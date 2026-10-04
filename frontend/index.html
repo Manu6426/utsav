@@ -185,7 +185,10 @@ tailwind.config = {
    runs with zero tooling. */
 "use strict";
 
-const API_BASE_URL = "http://localhost:8080/api";  /* ← the single knob: point at your backend here */
+const DEPLOYED_API_URL = null;  /* ← filled in when the backend is hosted (e.g. Render) */
+const _apiOverride = new URLSearchParams(location.search).get("api");
+const API_BASE_URL = _apiOverride
+  || (DEPLOYED_API_URL && location.hostname.endsWith("github.io") ? DEPLOYED_API_URL : "http://localhost:8080/api");  /* ← the single knob: point at your backend here */
 
 let API_ONLINE = false;   /* true once the backend has answered successfully */
 let API_VENDORS = null;   /* mapped vendor objects (frontend shape) when online, else null */

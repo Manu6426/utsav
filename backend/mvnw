@@ -1,0 +1,29 @@
+#!/bin/sh
+# Minimal Maven bootstrap for the Utsav backend.
+# Downloads Apache Maven 3.9.9 once into ~/.utsav-maven and reuses it.
+# Usage: ./mvnw compile | ./mvnw spring-boot:run | ./mvnw test
+set -e
+
+MVN_VERSION="3.9.9"
+INSTALL_DIR="$HOME/.utsav-maven"
+MVN_HOME="$INSTALL_DIR/apache-maven-$MVN_VERSION"
+
+if [ ! -x "$MVN_HOME/bin/mvn" ]; then
+  echo "[mvnw] Downloading Apache Maven $MVN_VERSION (one-time)..."
+  mkdir -p "$INSTALL_DIR"
+  TMP_ZIP="$(mktemp /tmp/apache-maven-XXXXXX.zip)"
+  curl -fsSL -o "$TMP_ZIP" \
+    "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MVN_VERSION/apache-maven-$MVN_VERSION-bin.zip"
+  unzip -q -o "$TMP_ZIP" -d "$INSTALL_DIR"
+  rm -f "$TMP_ZIP"
+fi
+
+if [ -z "$JAVA_HOME" ]; then
+  if ! command -v java >/dev/null 2>&1; then
+    echo "[mvnw] ERROR: Java 17+ is required but 'java' was not found on PATH." >&2
+    echo "[mvnw] Install a JDK 17+ and re-run." >&2
+    exit 1
+  fi
+fi
+
+exec "$MVN_HOME/bin/mvn" "$@"

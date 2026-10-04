@@ -28,7 +28,11 @@ public class VendorService {
     @Transactional(readOnly = true)
     public List<Vendor> search(String categoryId, String city, Integer maxBudget,
                                Boolean newcomer, Boolean verified) {
-        return vendorRepository.search(categoryId, city, maxBudget, newcomer, verified);
+        // Lowercase in Java, not in JPQL: LOWER(:city) with a null parameter makes
+        // PostgreSQL infer bytea and reject the query ("function lower(bytea) does
+        // not exist"). A plain bound string parameter is typed correctly.
+        String cityLower = city == null ? null : city.toLowerCase();
+        return vendorRepository.search(categoryId, cityLower, maxBudget, newcomer, verified);
     }
 
     @Transactional(readOnly = true)

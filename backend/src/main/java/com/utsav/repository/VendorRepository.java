@@ -17,7 +17,7 @@ public interface VendorRepository extends JpaRepository<Vendor, String> {
     @Query("""
             SELECT v FROM Vendor v
             WHERE (:categoryId IS NULL OR v.category.id = :categoryId)
-              AND (:city IS NULL OR LOWER(v.city) = LOWER(:city))
+              AND (:city IS NULL OR LOWER(v.city) = :city)
               AND (:maxBudget IS NULL OR v.startingPrice <= :maxBudget)
               AND (:newcomer IS NULL OR v.newcomer = :newcomer)
               AND (:verified IS NULL OR v.verified = :verified)

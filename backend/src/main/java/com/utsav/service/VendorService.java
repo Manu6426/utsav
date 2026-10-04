@@ -59,7 +59,6 @@ public class VendorService {
         vendor.setStartingPrice(request.getStartingPrice());
         vendor.setTagline(request.getTagline());
         vendor.setBio(request.getBio());
-        vendor.setInstagram(request.getInstagram());
         vendor.setVerified(false);
         vendor.setNewcomer(true);
         vendor.setRating(0.0);

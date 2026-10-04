@@ -31,7 +31,6 @@ public class CreateVendorRequest {
 
     private String tagline;
     private String bio;
-    private String instagram;
 
     public String getId() {
         return id;
@@ -103,13 +102,5 @@ public class CreateVendorRequest {
 
     public void setBio(String bio) {
         this.bio = bio;
-    }
-
-    public String getInstagram() {
-        return instagram;
-    }
-
-    public void setInstagram(String instagram) {
-        this.instagram = instagram;
     }
 }

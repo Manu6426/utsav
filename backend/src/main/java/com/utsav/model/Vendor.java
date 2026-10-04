@@ -61,8 +61,6 @@ public class Vendor {
     @Column(length = 2000)
     private String bio;
 
-    private String instagram;
-
     @ElementCollection
     @CollectionTable(name = "vendor_languages", joinColumns = @JoinColumn(name = "vendor_id"))
     @Column(name = "language")
@@ -89,6 +87,12 @@ public class Vendor {
     @CollectionTable(name = "vendor_portfolio", joinColumns = @JoinColumn(name = "vendor_id"))
     @OrderColumn(name = "photo_order")
     private List<PortfolioItem> portfolio = new ArrayList<>();
+
+    /** Self-reported credentials / kit: certifications, courses, equipment, products. Optional. */
+    @ElementCollection
+    @CollectionTable(name = "vendor_credentials", joinColumns = @JoinColumn(name = "vendor_id"))
+    @OrderColumn(name = "credential_order")
+    private List<Credential> credentials = new ArrayList<>();
 
     public Vendor() {
     }
@@ -197,14 +201,6 @@ public class Vendor {
         this.bio = bio;
     }
 
-    public String getInstagram() {
-        return instagram;
-    }
-
-    public void setInstagram(String instagram) {
-        this.instagram = instagram;
-    }
-
     public List<String> getLanguages() {
         return languages;
     }
@@ -243,5 +239,13 @@ public class Vendor {
 
     public void setPortfolio(List<PortfolioItem> portfolio) {
         this.portfolio = portfolio;
+    }
+
+    public List<Credential> getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(List<Credential> credentials) {
+        this.credentials = credentials;
     }
 }

@@ -229,12 +229,14 @@ function mapVendor(b){
     verified: !!b.verified, newcomer: !!b.newcomer,
     idVerified: false, idCountry: null,            /* not modelled by the API yet */
     tag: b.tagline, bio: b.bio,
-    langs: b.languages || [], ig: b.instagram,
+    langs: b.languages || [],
+    creds: (b.credentials || []).map(c=>[c.label, c.detail]),
     occ: b.occasionIds || [],
     services: (b.services || []).map(s=>[s.name, s.price, s.unit]),
     port: (b.portfolio || []).map((p,i)=>{         /* keep Budget Freeze working via local meta */
       const m = meta[i] || {};
-      return { img:p.imageUrl, label:m.l||"", budget:(m.b!=null?m.b:null), guests:(m.g!=null?m.g:null) };
+      return { img:p.imageUrl, title:p.title||"", caption:p.caption||"", label:m.l||p.title||"",
+               budget:(m.b!=null?m.b:null), guests:(m.g!=null?m.g:null) };
     }),
     revs: [],                                      /* reviews arrive via API_REVIEWS (see vendorReviews) */
     collab: b.collaboratorIds || [],
@@ -375,8 +377,8 @@ const SEED_VENDORS = [
 { id:"meera", name:"Meera's Marigold Events", cat:"decorators", city:"Houston", country:"USA", cur:"$", rating:4.9, rc:132, price:1200, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Mandaps that smell like home.",
   bio:"Meera has dressed 300+ mandaps across Texas over 9 years. Her team grows its own marigolds — yes, really — and builds stages that photograph like a dream. Famous for calm, on-time setups even when the baraat runs two hours late.",
-  langs:["English","Hindi","Telugu"], ig:"meerasmarigold_demo",
-  occ:["wedding","sangeet","mehendi","housewarming","prewedding"],
+  langs:["English","Hindi","Telugu"],
+  creds:[["Specialty","Home-grown marigold farm - 300+ mandaps dressed"],["Course","Floral Design Intensive, 2019"]],  occ:["wedding","sangeet","mehendi","housewarming","prewedding"],
   services:[["Full mandap decor",1200,"event"],["Sangeet stage",900,"event"],["Mehendi morning setup",650,"event"],["Floral entryway",300,"setup"],["Photobooth corner",450,"event"]],
   port:["images/hero.jpg","images/cat-decorator.jpg","images/port-mandap.jpg","images/port-table.jpg","images/port-sangeet.jpg"],
   revs:[["Ananya R.",5,"Sep 2026","The mandap made my mother cry. Meera's team set up 400 flowers while we were still at the temple. Flawless."],["Divya S.",5,"Aug 2026","On time, on budget, and the stage looked straight out of a movie. Worth every dollar."],["Kavya M.",4,"Jun 2026","Gorgeous work. One backdrop panel arrived late but they fixed it before guests walked in."],["Rohit P.",5,"May 2026","They handled my sister's sangeet stage overnight. Magicians, honestly."]],
@@ -385,8 +387,8 @@ const SEED_VENDORS = [
 { id:"priya", name:"Glam by Priya", cat:"makeup", city:"New York", country:"USA", cur:"$", rating:4.8, rc:214, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Red lips approved by 200+ brides.",
   bio:"Priya is a certified pro artist who specializes in South Asian bridal glam — the kind that lasts through pheras, a hundred hugs, and happy tears. Trial sessions at her Queens studio.",
-  langs:["English","Hindi","Tamil"], ig:"glam_by_priya_demo",
-  occ:["wedding","sangeet","prewedding","bridalshower","anniversary"],
+  langs:["English","Hindi","Tamil"],
+  creds:[["Certification","Lakme Salon Certified Makeup Artistry, 2021"],["Course","Airbrush Techniques Masterclass, 2023"],["Products used","MAC, Huda Beauty & Charlotte Tilbury"]],  occ:["wedding","sangeet","prewedding","bridalshower","anniversary"],
   services:[["Bridal makeup + hair",350,"person"],["Party makeup",120,"person"],["Makeup trial",80,"session"],["Groom styling",90,"person"]],
   port:["images/cat-makeup.jpg","images/port-bridal.jpg","images/port-mehendi-detail.jpg"],
   revs:[["Sneha K.",5,"Sep 2026","My makeup survived 14 hours, three outfit changes, and my crying. Priya is a miracle worker."],["Lakshmi V.",5,"Jul 2026","She understood 'soft but make it bridal' perfectly. Trial was so thorough."],["Anitha D.",4,"May 2026","Beautiful work, slightly rushed during the big-morning rush — book the trial."],["Farah N.",5,"Apr 2026","Did my whole bridal party of six. Everyone looked like themselves, just luminous."]],
@@ -395,8 +397,8 @@ const SEED_VENDORS = [
 { id:"aisha", name:"Henna by Aisha", cat:"mehendi", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:6, price:80, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
   tag:"Bridal henna, party henna, tiny tattoos.",
   bio:"Aisha learned henna from her grandmother in Hyderabad and turned a dorm-room side hustle into the Bay Area's most-booked newcomer. Intricate bridal work in under four hours, organic cones only.",
-  langs:["English","Hindi","Urdu"], ig:"henna.by.aisha_demo",
-  occ:["mehendi","wedding","sangeet","bridalshower","birthday"],
+  langs:["English","Hindi","Urdu"],
+  creds:[["Certification","Organic Henna Safety & Design Course, 2022"],["Products used","100% organic, chemical-free henna cones"]],  occ:["mehendi","wedding","sangeet","bridalshower","birthday"],
   services:[["Bridal henna (both hands)",220,"person"],["Party henna",80,"person"],["Kids' henna motifs",40,"person"]],
   port:["images/cat-mehendi.jpg","images/port-mehendi-detail.jpg"],
   revs:[["Zara H.",5,"Sep 2026","The stain was DARK for a week. My bridal henna got more compliments than my lehenga."],["Priya N.",5,"Aug 2026","Booked her for my sister's mehendi morning — fast, sweet, insanely detailed."],["Meera J.",5,"Jul 2026","Newcomer prices, veteran skills. Get her before she raises rates!"]],
@@ -405,8 +407,8 @@ const SEED_VENDORS = [
 { id:"lens", name:"Lens & Light Studio", cat:"photographers", city:"Dallas", country:"USA", cur:"$", rating:4.9, rc:98, price:1500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Candid first, posed never.",
   bio:"Husband-wife duo Arjun and Sara shoot 40+ Indian weddings a year. Two shooters, a same-day teaser reel, and a gallery your grandchildren will fight over.",
-  langs:["English","Hindi"], ig:"lensandlight_demo",
-  occ:["wedding","prewedding","sangeet","anniversary","birthday"],
+  langs:["English","Hindi"],
+  creds:[["Equipment","Sony A7IV x 2 - 35mm & 85mm f/1.4 GM"],["Certification","FAA Part 107 Drone License"],["Course","Fearless Photographers Workshop, 2022"]],  occ:["wedding","prewedding","sangeet","anniversary","birthday"],
   services:[["Full-day wedding (2 shooters)",1500,"event"],["Pre-wedding shoot",600,"session"],["Sangeet coverage",800,"event"],["Teaser reel",300,"add-on"]],
   port:["images/cat-photographer.jpg","images/port-prewedding.jpg","images/port-bridal.jpg"],
   revs:[["Vikram T.",5,"Sep 2026","They caught my dad's expression when he saw my bride. I cried watching the teaser."],["Nisha R.",5,"Aug 2026","Invisible during the ceremony, everywhere that mattered. 900 stunning photos."],["Aditi L.",4,"Jun 2026","Gorgeous gallery. Delivery took 5 weeks, but worth the wait."]],
@@ -415,7 +417,7 @@ const SEED_VENDORS = [
 { id:"natya", name:"Natya Beats", cat:"choreographers", city:"Boston", country:"USA", cur:"$", rating:4.9, rc:8, price:60, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Your cousins WILL nail the hook step.",
   bio:"Classically trained in Bharatanatyam, fluent in Bollywood. Natya Beats has taught 200+ family members their sangeet routines — including one very reluctant chacha who now won't sit down.",
-  langs:["English","Hindi","Tamil"], ig:"natyabeats_demo",
+  langs:["English","Hindi","Tamil"],
   occ:["sangeet","wedding","birthday","anniversary"],
   services:[["Sangeet choreography (4 sessions)",240,"package"],["Couple's first dance",180,"package"],["Kids' group number",150,"package"],["Hourly rehearsal",60,"hour"]],
   port:["images/cat-choreographer.jpg","images/port-sangeet.jpg"],
@@ -425,7 +427,7 @@ const SEED_VENDORS = [
 { id:"arjun", name:"MC Arjun Rao", cat:"hosts", city:"New York", country:"USA", cur:"$", rating:4.8, rc:76, price:400, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Bilingual banter, zero awkward silences.",
   bio:"Arjun has hosted 150+ sangeets and receptions across the tri-state. English-Hindi-Telugu on the mic, games the elders actually enjoy, and timelines that stay on track.",
-  langs:["English","Hindi","Telugu"], ig:"mcarjunrao_demo",
+  langs:["English","Hindi","Telugu"],
   occ:["sangeet","wedding","corporate","birthday","anniversary"],
   services:[["Sangeet hosting (4 hrs)",400,"event"],["Wedding reception MC",550,"event"],["Corporate anchor",600,"event"]],
   port:["images/cat-host.jpg","images/port-sangeet.jpg"],
@@ -435,7 +437,7 @@ const SEED_VENDORS = [
 { id:"everafter", name:"EverAfter Decor", cat:"decorators", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:5, price:600, verified:true, idVerified:false, idCountry:"USA", newcomer:true,
   tag:"Pinterest boards, but real.",
   bio:"Two best friends, one storage unit full of drapes, and five flawless events. EverAfter does modern Indian decor — think pampas grass meets marigold, at newcomer prices.",
-  langs:["English","Hindi"], ig:"everafter.decor_demo",
+  langs:["English","Hindi"],
   occ:["wedding","birthday","bridalshower","babyshower","anniversary"],
   services:[["Full venue decor",600,"event"],["Balloon + floral arch",250,"setup"],["Table styling (10 tables)",350,"event"]],
   port:["images/cat-decorator.jpg","images/port-table.jpg","images/cat-birthday.jpg"],
@@ -445,8 +447,8 @@ const SEED_VENDORS = [
 { id:"glowcraft", name:"GlowCraft Artistry", cat:"makeup", city:"Houston", country:"USA", cur:"$", rating:4.9, rc:7, price:180, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Soft glam that survives happy tears.",
   bio:"Nisha worked backstage at fashion week before moving to Houston. Airbrush bridal looks at prices that don't need a family meeting — and lashes that stay put.",
-  langs:["English","Hindi","Gujarati"], ig:"glowcraft.nisha_demo",
-  occ:["wedding","bridalshower","prewedding","birthday","graduation"],
+  langs:["English","Hindi","Gujarati"],
+  creds:[["Certification","TEMPTU Airbrush Certified"],["Products used","Kryolan & Dior Backstage kit"]],  occ:["wedding","bridalshower","prewedding","birthday","graduation"],
   services:[["Bridal airbrush",180,"person"],["Engagement look",120,"person"],["Bridesmaid (per person)",75,"person"]],
   port:["images/cat-makeup.jpg","images/port-bridal.jpg"],
   revs:[["Pooja V.",5,"Sep 2026","Airbrush lasted 12 hours in Houston humidity. Enough said."],["Rina D.",5,"Jul 2026","So gentle and precise. My engagement photos are flawless."]],
@@ -455,8 +457,8 @@ const SEED_VENDORS = [
 { id:"shubh", name:"Shubh Decor Studio", cat:"decorators", city:"Hyderabad", country:"India", cur:"₹", rating:4.8, rc:187, price:25000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Big-fat-wedding decor, honest prices.",
   bio:"Twelve years, 500+ weddings across Telangana and Andhra Pradesh. Shubh Decor owns its flowers, trussing, and lighting — which is why their quotes never have surprises.",
-  langs:["Telugu","Hindi","English"], ig:"shubhdecor_demo",
-  occ:["wedding","sangeet","mehendi","housewarming"],
+  langs:["Telugu","Hindi","English"],
+  creds:[["Experience","12 years - 500+ weddings across Telangana & AP"],["Equipment","In-house trussing & intelligent lighting rig"]],  occ:["wedding","sangeet","mehendi","housewarming"],
   services:[["Wedding mandap + stage",25000,"event"],["Sangeet stage",15000,"event"],["Home mehendi setup",8000,"event"],["Car decoration",2500,"setup"]],
   port:["images/hero.jpg","images/port-mandap.jpg","images/cat-decorator.jpg"],
   revs:[["Sravani K.",5,"Sep 2026","They decorated our whole wedding in one night. My in-laws are still talking about the entrance."],["Harish G.",5,"Aug 2026","Transparent billing, no last-minute extras. Rare in this industry."],["Lalitha M.",4,"Jun 2026","Beautiful mandap. Flower freshness could be better in summer — ask for seasonal blooms."]],
@@ -465,8 +467,8 @@ const SEED_VENDORS = [
 { id:"kaya", name:"Kaya Kalp Makeup", cat:"makeup", city:"Chennai", country:"India", cur:"₹", rating:4.9, rc:143, price:8000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Muhurtham-proof makeup.",
   bio:"Lakshmi's HD bridal looks stay put through six-hour muhurthams and Chennai humidity. Trials at her Adyar studio include a full skin-prep consultation.",
-  langs:["Tamil","English","Hindi"], ig:"kayakalpmakeup_demo",
-  occ:["wedding","prewedding","bridalshower"],
+  langs:["Tamil","English","Hindi"],
+  creds:[["Certification","HD & Airbrush Diploma, Fat Mu Pro Academy"],["Products used","MAC Pro & Kryolan Supracolor"]],  occ:["wedding","prewedding","bridalshower"],
   services:[["Bridal HD makeup",8000,"person"],["Reception look",6000,"person"],["Trial session",1500,"session"]],
   port:["images/cat-makeup.jpg","images/port-bridal.jpg"],
   revs:[["Divya R.",5,"Sep 2026","Sweat-proof through a June muhurtham. My photos need zero retouching."],["Janani S.",5,"Jul 2026","The trial alone was worth it — she fixed my skincare routine too."]],
@@ -475,7 +477,7 @@ const SEED_VENDORS = [
 { id:"ritu", name:"Mehendi Magic by Ritu", cat:"mehendi", city:"Bangalore", country:"India", cur:"₹", rating:5.0, rc:9, price:2100, verified:true, idVerified:false, idCountry:"India", newcomer:true,
   tag:"Full bridal in 4 hours flat.",
   bio:"Ritu does three weddings a weekend in peak season and still takes party bookings. Organic henna, deep-stain guarantee, and designs from minimal chic to full bridal.",
-  langs:["Hindi","English","Kannada"], ig:"mehendimagic.ritu_demo",
+  langs:["Hindi","English","Kannada"],
   occ:["mehendi","wedding","sangeet"],
   services:[["Bridal (hands + feet)",2100,"person"],["Party henna",500,"person"],["Engagement motif",800,"person"]],
   port:["images/cat-mehendi.jpg","images/port-mehendi-detail.jpg"],
@@ -485,8 +487,8 @@ const SEED_VENDORS = [
 { id:"karthik", name:"Frames by Karthik", cat:"photographers", city:"Chennai", country:"India", cur:"₹", rating:4.9, rc:11, price:15000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Temple-town storytelling.",
   bio:"Karthik shot his first wedding on a borrowed camera; eleven 5-star reviews later, he's Chennai's worst-kept secret. Drone coverage included in every package.",
-  langs:["Tamil","English"], ig:"framesbykarthik_demo",
-  occ:["wedding","prewedding","housewarming"],
+  langs:["Tamil","English"],
+  creds:[["Equipment","Canon R6 - RF 28-70mm f/2"],["Certification","DGCA Drone Permit"]],  occ:["wedding","prewedding","housewarming"],
   services:[["Wedding day (1 shooter + drone)",15000,"event"],["Pre-wedding (2 locations)",9000,"session"],["Family portraits",5000,"session"]],
   port:["images/cat-photographer.jpg","images/port-prewedding.jpg"],
   revs:[["Arun V.",5,"Sep 2026","The drone shot of our temple wedding is framed in our living room now."],["Meenakshi D.",5,"Jul 2026","Unobtrusive, creative, and half the price of the big studios."]],
@@ -495,7 +497,7 @@ const SEED_VENDORS = [
 { id:"dhoom", name:"Dhoom Dance Crew", cat:"choreographers", city:"Hyderabad", country:"India", cur:"₹", rating:4.8, rc:89, price:5000, verified:true, idVerified:true, idCountry:"India", newcomer:false,
   tag:"Sangeet choreography in 6 sessions.",
   bio:"Four dancers, one dhol player on call, and sangeet routines that uncles can actually learn. Dhoom has choreographed 200+ family performances across two states.",
-  langs:["Telugu","Hindi","English"], ig:"dhoomdancecrew_demo",
+  langs:["Telugu","Hindi","English"],
   occ:["sangeet","wedding","birthday"],
   services:[["Family sangeet (6 sessions)",5000,"package"],["Bride/groom solo",3000,"package"],["Flash mob",8000,"package"]],
   port:["images/cat-choreographer.jpg","images/port-sangeet.jpg"],
@@ -505,7 +507,7 @@ const SEED_VENDORS = [
 { id:"divya", name:"Anchor Divya", cat:"hosts", city:"Bangalore", country:"India", cur:"₹", rating:5.0, rc:4, price:7000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Games your athai will actually play.",
   bio:"Ex-RJ Divya brings radio energy to sangeets and birthdays. Kannada, Hindi, English, Tamil — she'll get your shyest cousin on stage and keep the aunties laughing.",
-  langs:["Kannada","Hindi","English","Tamil"], ig:"anchordivya_demo",
+  langs:["Kannada","Hindi","English","Tamil"],
   occ:["sangeet","wedding","birthday","corporate"],
   services:[["Sangeet anchoring",7000,"event"],["Birthday hosting",5000,"event"],["Corporate emcee",10000,"event"]],
   port:["images/cat-host.jpg"],
@@ -515,7 +517,7 @@ const SEED_VENDORS = [
 { id:"petals", name:"Petal & Pine Events", cat:"decorators", city:"Chennai", country:"India", cur:"₹", rating:4.7, rc:12, price:9000, verified:true, idVerified:true, idCountry:"India", newcomer:true,
   tag:"Birthdays, half-saree ceremonies, and small joys.",
   bio:"Specialists in intimate celebrations — half-saree functions, seemanthams, first birthdays. Thoughtful, elegant decor that doesn't need a wedding budget.",
-  langs:["Tamil","English"], ig:"petalandpine_demo",
+  langs:["Tamil","English"],
   occ:["birthday","babyshower","housewarming","anniversary"],
   services:[["Birthday setup",9000,"event"],["Half-saree ceremony",12000,"event"],["Seemantham decor",10000,"event"]],
   port:["images/cat-birthday.jpg","images/port-table.jpg"],
@@ -525,7 +527,7 @@ const SEED_VENDORS = [
 { id:"marcus", name:"DJ Marcus Cole", cat:"djs", city:"Boston", country:"USA", cur:"$", rating:4.8, rc:87, price:500, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"From Bollywood to Bad Bunny, one dance floor.",
   bio:"Marcus DJs 60+ South Asian weddings a year. Bhangra-to-Bad-Bunny transitions, dhol player on request, and a dance floor that empties only when the lights come on.",
-  langs:["English"], ig:"djmarcuscole_demo",
+  langs:["English"],
   occ:["wedding","sangeet","birthday","halloween","christmas","corporate","bachelor","graduation"],
   services:[["Wedding DJ (5 hrs)",500,"event"],["Sangeet DJ",350,"event"],["Dhol player add-on",250,"add-on"],["Halloween party set",400,"event"]],
   port:["images/cat-dj.jpg","images/port-sangeet.jpg"],
@@ -535,7 +537,7 @@ const SEED_VENDORS = [
 { id:"confetti", name:"Confetti & Co.", cat:"decorators", city:"Dallas", country:"USA", cur:"$", rating:4.9, rc:6, price:250, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Balloon arches that break the internet.",
   bio:"Started in a garage in 2024, now Dallas's go-to for birthdays and baby showers. Organic balloon garlands, neon signs, and genuine same-week availability.",
-  langs:["English","Spanish"], ig:"confettiandco_demo",
+  langs:["English","Spanish"],
   occ:["birthday","babyshower","bridalshower","halloween","graduation","anniversary"],
   services:[["Balloon garland",250,"setup"],["Full birthday setup",600,"event"],["Neon sign rental",120,"rental"],["Halloween porch",300,"setup"]],
   port:["images/cat-birthday.jpg","images/port-table.jpg"],
@@ -545,7 +547,7 @@ const SEED_VENDORS = [
 { id:"hudson", name:"Hudson & Harvest", cat:"caterers", city:"New York", country:"USA", cur:"$", rating:4.7, rc:112, price:900, verified:true, idVerified:true, idCountry:"USA", newcomer:false,
   tag:"Farm-to-table, chaat to charcuterie.",
   bio:"A catering company that actually gets Indian weddings — live chaat counters next to a carving station. Serving 50 to 500 guests across the tri-state area.",
-  langs:["English","Hindi"], ig:"hudsonandharvest_demo",
+  langs:["English","Hindi"],
   occ:["wedding","corporate","birthday","housewarming","christmas","anniversary"],
   services:[["Wedding buffet (per 100 guests)",900,"event"],["Live chaat counter",400,"add-on"],["Corporate lunch",750,"event"]],
   port:["images/cat-caterer.jpg","images/port-table.jpg"],
@@ -555,7 +557,7 @@ const SEED_VENDORS = [
 { id:"wicked", name:"Wicked Whimsy Studios", cat:"decorators", city:"Bay Area", country:"USA", cur:"$", rating:5.0, rc:5, price:350, verified:true, idVerified:true, idCountry:"USA", newcomer:true,
   tag:"Halloween haunted houses, Christmas wonderlands.",
   bio:"Prop stylists obsessed with October and December. Haunted house builds, spooky tablescapes, and Christmas installs that belong in movies — at newcomer prices.",
-  langs:["English"], ig:"wickedwhimsy_demo",
+  langs:["English"],
   occ:["halloween","christmas","birthday","corporate"],
   services:[["Halloween home haunt",350,"event"],["Christmas install",500,"event"],["Spooky tablescape",200,"setup"]],
   port:["images/cat-birthday.jpg","images/port-sangeet.jpg"],
@@ -565,7 +567,7 @@ const SEED_VENDORS = [
 { id:"zahra", name:"Zahra Luxe Events", cat:"decorators", city:"Dubai", country:"UAE", cur:"AED", rating:4.9, rc:143, price:4500, verified:true, idVerified:true, idCountry:"UAE", newcomer:false,
   tag:"Arabian-night luxury meets desi grandeur.",
   bio:"Dubai's go-to team for big-fat weddings — Indian, Arab, and fusion. Ten years across Palm Jumeirah ballrooms and desert venues. Emirates ID verified, trade-licensed, and famous for setups that photograph like film sets.",
-  langs:["English","Hindi","Arabic","Urdu"], ig:"zahraluxe_demo",
+  langs:["English","Hindi","Arabic","Urdu"],
   occ:["wedding","sangeet","mehendi","corporate","anniversary"],
   services:[["Luxury wedding stage + mandap",4500,"event"],["Sangeet night production",3200,"event"],["Mehendi morning setup",1800,"event"],["Corporate gala decor",2500,"event"]],
   port:["images/hero.jpg","images/port-mandap.jpg","images/port-sangeet.jpg"],
@@ -575,8 +577,8 @@ const SEED_VENDORS = [
 { id:"dunes", name:"Dunes & Vows Films", cat:"photographers", city:"Dubai", country:"UAE", cur:"AED", rating:5.0, rc:9, price:3500, verified:true, idVerified:true, idCountry:"UAE", newcomer:true,
   tag:"Desert golden hour is our studio.",
   bio:"A young duo shooting weddings across the dunes and the Marina. Drone + candid, same-day edits, and prices that undercut the big studios while the portfolio grows. Emirates ID verified.",
-  langs:["English","Hindi","Malayalam"], ig:"dunesandvows_demo",
-  occ:["wedding","prewedding","sangeet","anniversary"],
+  langs:["English","Hindi","Malayalam"],
+  creds:[["Equipment","Sony A7SIII - DJI Mavic 3 Pro"],["Course","Candid Wedding Storytelling, 2024"]],  occ:["wedding","prewedding","sangeet","anniversary"],
   services:[["Full wedding day (photo+drone)",3500,"event"],["Pre-wedding desert shoot",1500,"session"],["Sangeet candid coverage",1200,"event"]],
   port:["images/cat-photographer.jpg","images/port-prewedding.jpg"],
   revs:[["Anjali P.",5,"Sep 2026","Our desert pre-wedding shoot looks straight out of a movie. They knew exactly where the light would be."],["Omar S.",5,"Aug 2026","Drone shots over the dunes during our vows — unreal. Fastest-growing team in Dubai for a reason."]],
@@ -1041,12 +1043,38 @@ const PORTFOLIO_BUDGETS = {
   hudson:[{b:900,g:100,l:"Wedding buffet"},{b:900,g:120,l:"Gala dinner"}],
   wicked:[{b:300,g:30,l:"Porch haunt"},{b:500,g:80,l:"Stage build"}]
 };
+/* per-vendor portfolio titles/captions, aligned with SEED_VENDORS port[] order: {t: title, c: caption}
+   (mirrors the backend DataSeeder so demo mode and live API show the same stories) */
+const PORTFOLIO_INFO = {
+  meera:[{t:"Grand floral mandap",c:"A 400-flower mandap built for a Houston wedding — marigolds grown by Meera's own team."},{t:"Stage draping",c:"Layered drapes and florals dressed for a sangeet stage."},{t:"Mandap canopy detail",c:"Close-up of the marigold canopy work."},{t:"Reception table styling",c:"Guest tables dressed for a 150-guest reception."},{t:"Sangeet stage",c:"Full-stage florals for a family sangeet night."}],
+  priya:[{t:"Bridal trial look",c:"Soft-glam trial at the Queens studio."},{t:"Wedding-day glam",c:"The finished bridal look, built to last 14 hours."},{t:"Detail finishing",c:"Precision detail work for a party look."}],
+  aisha:[{t:"Bridal henna",c:"Full bridal henna, organic cones only."},{t:"Henna detail",c:"Close-up of Aisha's fine-line bridal work."}],
+  lens:[{t:"Wedding day coverage",c:"Candid coverage by Arjun and Sara."},{t:"Pre-wedding shoot",c:"Golden-hour portraits before the big day."},{t:"Bridal portraits",c:"Quiet bridal portraits between ceremonies."}],
+  natya:[{t:"Sangeet rehearsal",c:"Teaching a 14-person family medley."},{t:"Stage rehearsal",c:"Final run-through before sangeet night."}],
+  arjun:[{t:"Sangeet hosting",c:"On the mic at a 150-guest sangeet."},{t:"Reception stage",c:"Hosting a wedding reception."}],
+  everafter:[{t:"Backyard wedding",c:"A full backyard transformed for a wedding."},{t:"Table styling",c:"Styled tables for 60 guests."},{t:"Birthday setup",c:"A 40th birthday install."}],
+  glowcraft:[{t:"Airbrush bridal",c:"Airbrush bridal look, humidity-proofed."},{t:"Engagement look",c:"Soft-glam engagement makeup."}],
+  shubh:[{t:"Grand mandap",c:"A 300-guest wedding mandap in Hyderabad."},{t:"Mandap detail",c:"Fresh seasonal blooms, close up."},{t:"Stage + florals",c:"Wedding stage with full floral dressing."}],
+  kaya:[{t:"HD bridal look",c:"Muhurtham-proof HD bridal makeup."},{t:"Muhurtham glam",c:"The finished look, zero retouching needed."}],
+  ritu:[{t:"Bridal henna set",c:"Hands and feet, done in under four hours."},{t:"Party henna",c:"Minimal-chic motifs for a sangeet morning."}],
+  karthik:[{t:"Wedding + drone",c:"Full-day coverage with drone."},{t:"Pre-wedding shoot",c:"Two locations, golden light."},{t:"Bridal portraits",c:"Temple-town bridal portraits."}],
+  dhoom:[{t:"Family sangeet",c:"Six sessions to stage-ready."},{t:"Stage rehearsal",c:"Dress rehearsal with the dhol player."}],
+  divya:[{t:"Sangeet anchoring",c:"Hosting a 200-guest sangeet."}],
+  petals:[{t:"Birthday setup",c:"A first-birthday celebration install."},{t:"Seemantham table",c:"Styled table for an intimate seemantham."}],
+  marcus:[{t:"Wedding DJ set",c:"Five hours, bhangra to Bad Bunny."},{t:"Sangeet night",c:"Keeping the dance floor full till midnight."}],
+  confetti:[{t:"Birthday install",c:"Full birthday setup in 40 minutes."},{t:"Balloon garland",c:"Organic balloon garland backdrop."}],
+  hudson:[{t:"Wedding buffet",c:"Buffet service for 100 guests."},{t:"Gala dinner",c:"Plated dinner at a Diwali gala."}],
+  wicked:[{t:"Porch haunt",c:"The house every kid talked about."},{t:"Stage build",c:"Spooky stage with floating candles."}],
+  zahra:[{t:"Luxury wedding stage",c:"A palace-like Nikah stage in Dubai."},{t:"Mandap detail",c:"Close-up of the floral mandap work."},{t:"Sangeet production",c:"LED walls and dhol entry."}],
+  dunes:[{t:"Desert pre-wedding",c:"Golden-hour portraits in the dunes."},{t:"Vows at golden hour",c:"Drone still from a desert ceremony."},{t:"Bridal portraits",c:"Quiet portraits between ceremonies."}]
+};
 function portItems(v){
   const meta = PORTFOLIO_BUDGETS[v.id] || [];
+  const info = PORTFOLIO_INFO[v.id] || [];
   return v.port.map((p,i)=>{
     if(p && typeof p === "object") return p;
-    const m = meta[i] || {};
-    return { img:p, budget:(m.b!=null?m.b:null), guests:(m.g!=null?m.g:null), label:m.l||"" };
+    const m = meta[i] || {}; const inf = info[i] || {};
+    return { img:p, title:inf.t||"", caption:inf.c||"", budget:(m.b!=null?m.b:null), guests:(m.g!=null?m.g:null), label:m.l||inf.t||"" };
   });
 }
 function worksWithin(v){
@@ -1058,6 +1086,18 @@ function budgetTagHTML(v, item){
   if(item.budget==null) return "";
   const g = item.guests ? ` · ${item.guests} guest${item.guests>1?"s":""}` : "";
   return `<span class="absolute bottom-2 left-2 badge !bg-maroon-deep/85 !text-gold-light !border-0 backdrop-blur">❄ ${fmtPrice(v.cur,item.budget)}${g}</span>`;
+}
+/* ---- credentials & kit: self-reported, optional, never a verification claim ---- */
+function credsHTML(v){
+  const creds = v.creds || [];
+  if(!creds.length) return "";
+  return `<div class="mt-5"><span class="lbl">Credentials & kit</span>
+    <div class="space-y-2">${creds.map(c=>`
+      <div class="flex gap-2.5 items-start bg-cream/50 border border-cream rounded-xl px-3.5 py-2.5">
+        <span class="text-gold text-base leading-none mt-0.5">✦</span>
+        <div class="text-sm"><span class="font-semibold">${esc(c[0])}</span>${c[1]?`<span class="text-ink/75"> — ${esc(c[1])}</span>`:""}</div>
+      </div>`).join("")}</div>
+    <p class="text-[11px] text-muted mt-2">Shared by the vendor — not independently verified.</p></div>`;
 }
 
 /* ═══════════ HOME ═══════════ */
@@ -1393,6 +1433,7 @@ function VendorView(id){
           <p class="text-muted mt-1">📍 ${esc(v.city)}, ${esc(v.country)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
         </div>
         <div class="flex gap-2 pb-1">
+          <a href="#/vendor/${v.id}/portfolio" class="btn-outline btn-sm">⧉ Portfolio</a>
           <button onclick="teamToggle('${v.id}')" class="btn-outline btn-sm">${teamHas(v.id)?"✓ In your team":"+ Add to team"}</button>
           <button onclick="openBooking('${v.id}')" class="btn-primary btn-sm">Book now</button>
         </div>
@@ -1426,7 +1467,7 @@ function renderProfileTab(id){
           <div class="absolute inset-0 bg-gradient-to-t from-maroon-deep/50 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
           ${budgetTagHTML(v,p)}
         </div>
-        ${p.label?`<div class="px-3 py-2 text-xs font-medium text-muted">${esc(p.label)}</div>`:""}
+        ${(p.title||p.label)?`<div class="px-3 py-2.5"><div class="text-xs font-semibold text-ink leading-snug">${esc(p.title||p.label)}</div>${p.caption?`<div class="text-[11px] text-muted mt-0.5 leading-snug">${esc(p.caption)}</div>`:""}</div>`:""}
       </button>`).join("")}
     </div>`;
   } else if(profileTab==="services"){
@@ -1476,7 +1517,7 @@ function renderProfileTab(id){
       <div><h4 class="font-display text-2xl font-semibold text-maroon mb-3">About</h4><p class="leading-relaxed text-ink/85">${esc(v.bio)}</p>
         <div class="mt-5"><span class="lbl">Languages</span><div class="flex flex-wrap gap-2">${v.langs.map(l=>`<span class="filter-chip !cursor-default">${l}</span>`).join("")}</div></div>
         <div class="mt-5"><span class="lbl">Occasions served</span><div class="flex flex-wrap gap-2">${v.occ.map(o=>`<a href="#/browse?occasion=${o}" class="filter-chip">${occName(o)}</a>`).join("")}</div></div>
-        <a href="https://instagram.com/${v.ig}" target="_blank" rel="noopener" class="btn-outline btn-sm mt-6">📸 @${esc(v.ig)}</a>
+        ${credsHTML(v)}
         <p class="text-[11px] text-muted mt-2">Illustrative demo profile — not a real business.</p></div>
       <div><h4 class="font-display text-2xl font-semibold text-maroon mb-3">Collaborates with</h4>
         ${collabs.length?`<div class="space-y-3">${collabs.map(c=>`
@@ -1516,6 +1557,120 @@ async function submitReview(vid){
   toast("Review posted — thank you!");
   renderProfileTab(vid);
 }
+/* ═══════════ VENDOR PORTFOLIO PAGE (shareable mini-portfolio) ═══════════
+   Route: #/vendor/{id}/portfolio — the vendor's own portfolio page, built from
+   the data they gave us. Works in live-API mode and in localStorage demo mode. */
+function PortfolioView(id){
+  const v = vendorById(id);
+  if(!v) return `<section class="max-w-3xl mx-auto px-4 py-20 text-center"><h1 class="font-display text-4xl text-maroon mb-4">Vendor not found</h1><a href="#/browse" class="btn-primary">Back to browse</a></section>`;
+  const items = portItems(v);
+  const cover = (items[0] && items[0].img) || "images/hero.jpg";
+  const revs = vendorReviews(v).slice(0,3);
+  const rating = vendorRating(v);
+  return `
+  <section>
+    <div class="relative h-72 sm:h-96 overflow-hidden">
+      <img src="${cover}" class="w-full h-full object-cover" alt="">
+      <div class="absolute inset-0 bg-gradient-to-t from-maroon-deep via-maroon-deep/50 to-maroon-deep/10"></div>
+      <div class="absolute top-5 right-5 flex gap-2">
+        <button onclick="sharePortfolio('${v.id}')" class="btn-outline btn-sm !bg-ivory/90 !border-0 backdrop-blur">⧉ Share</button>
+      </div>
+      <div class="absolute bottom-0 inset-x-0">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pb-8 flex flex-col sm:flex-row sm:items-end gap-5">
+          <span class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl flex items-center justify-center text-ivory font-display text-3xl font-semibold shadow-lift border-4 border-ivory shrink-0" style="background:${avatarBg(v.name)}">${initials(v.name)}</span>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="badge badge-cat">${catName(v.cat)}</span>
+              ${v.verified?`<span class="badge badge-verified">✓ Verified on Utsav</span>`:`<span class="badge !bg-stone-200 !text-stone-600 !border-stone-300">Verification pending</span>`}
+              ${v.newcomer?`<span class="badge badge-newcomer">✦ Newcomer · Budget pick</span>`:""}
+            </div>
+            <h1 class="font-display text-4xl sm:text-5xl font-semibold text-ivory tracking-tight">${esc(v.name)}</h1>
+            <p class="text-ivory/80 mt-1">📍 ${esc(v.city)}, ${esc(v.country)} · <span class="italic font-display">“${esc(v.tag)}”</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div class="flex flex-wrap items-center gap-6 pb-6 border-b border-cream">
+        <div class="flex items-center gap-2">${stars(rating)}<b class="text-xl">${rating.toFixed(1)}</b><span class="text-muted text-sm">(${v.rc} reviews)</span></div>
+        <div class="text-sm"><span class="text-muted">Starting at</span> <b class="font-display text-2xl text-maroon">${fmtPrice(v.cur,v.price)}</b></div>
+        <div class="flex gap-2 ml-auto">
+          <a href="#/vendor/${v.id}" class="btn-outline btn-sm">Full profile</a>
+          <button onclick="openBooking('${v.id}')" class="btn-primary btn-sm">Book this vendor</button>
+        </div>
+      </div>
+
+      <div class="py-8">
+        <h2 class="font-display text-2xl font-semibold text-maroon mb-3">About</h2>
+        <p class="leading-relaxed text-ink/85 max-w-3xl">${esc(v.bio)}</p>
+        ${(v.creds||[]).length?`<div class="mt-6 max-w-3xl"><h3 class="font-display text-xl font-semibold text-maroon mb-3">Credentials & kit</h3>
+          <div class="space-y-2">${v.creds.map(c=>`
+            <div class="flex gap-2.5 items-start bg-cream/50 border border-cream rounded-xl px-3.5 py-2.5">
+              <span class="text-gold text-base leading-none mt-0.5">✦</span>
+              <div class="text-sm"><span class="font-semibold">${esc(c[0])}</span>${c[1]?`<span class="text-ink/75"> — ${esc(c[1])}</span>`:""}</div>
+            </div>`).join("")}</div>
+          <p class="text-[11px] text-muted mt-2">Shared by the vendor — not independently verified.</p></div>`:""}
+      </div>
+
+      <div class="py-8 border-t border-cream">
+        <div class="flex items-baseline justify-between mb-4">
+          <h2 class="font-display text-2xl font-semibold text-maroon">Portfolio</h2>
+          <span class="text-sm text-muted">${items.length} piece${items.length===1?"":"s"} of past work</span>
+        </div>
+        ${items.length?`<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          ${items.map((p,i)=>`
+          <button onclick="openLightbox('${v.id}',${i})" class="card !rounded-xl relative group text-left">
+            <div class="relative h-48 sm:h-56 overflow-hidden">
+              <img src="${p.img}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108" alt="${esc(p.title||p.label||v.name)}">
+              <div class="absolute inset-0 bg-gradient-to-t from-maroon-deep/50 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+              ${budgetTagHTML(v,p)}
+            </div>
+            ${(p.title||p.label)?`<div class="px-3 py-2.5"><div class="text-xs font-semibold text-ink leading-snug">${esc(p.title||p.label)}</div>${p.caption?`<div class="text-[11px] text-muted mt-0.5 leading-snug">${esc(p.caption)}</div>`:""}</div>`:""}
+          </button>`).join("")}
+        </div>`:`<p class="text-muted text-sm">This vendor hasn't added portfolio photos yet.</p>`}
+      </div>
+
+      <div class="py-8 border-t border-cream">
+        <h2 class="font-display text-2xl font-semibold text-maroon mb-4">Services & pricing</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          ${v.services.map(s=>`
+          <div class="card p-5 flex items-center justify-between gap-4">
+            <div><h4 class="font-semibold">${esc(s[0])}</h4><p class="text-xs text-muted mt-0.5">per ${s[2]}</p></div>
+            <div class="font-display text-xl font-semibold text-maroon shrink-0">${fmtPrice(v.cur,s[1])}</div>
+          </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="py-8 border-t border-cream">
+        <div class="flex items-baseline justify-between mb-4">
+          <h2 class="font-display text-2xl font-semibold text-maroon">What clients say</h2>
+          <a href="#/vendor/${v.id}" onclick="setTimeout(()=>setProfileTab('reviews','${v.id}'),50)" class="text-sm text-maroon underline">All reviews</a>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          ${revs.map(r=>`
+          <div class="card p-5"><div class="flex items-center gap-3 mb-2">
+            <span class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:${avatarBg(r[0])}">${initials(r[0])}</span>
+            <div><div class="font-semibold text-sm">${esc(r[0])}</div><div class="text-xs text-muted">${esc(r[2])}</div></div></div>
+            <div class="mb-1">${stars(r[1])}</div><p class="text-sm leading-relaxed">${esc(r[3])}</p></div>`).join("") || `<p class="text-muted text-sm">No reviews yet.</p>`}
+        </div>
+      </div>
+
+      <div class="card p-8 text-center !bg-maroon-deep !border-0 my-4">
+        <h3 class="font-display text-2xl font-semibold text-ivory mb-2">Like what you see?</h3>
+        <p class="text-ivory/70 text-sm mb-5">Pick a date and lock ${esc(v.name)} in — instant confirmation, no quote-chasing.</p>
+        <button onclick="openBooking('${v.id}')" class="btn-primary">Book this vendor</button>
+      </div>
+      <p class="text-[11px] text-muted text-center mt-6">Illustrative demo profile — not a real business.</p>
+    </div>
+  </section>`;
+}
+function sharePortfolio(vid){
+  const url = location.origin + location.pathname + "#/vendor/" + vid + "/portfolio";
+  const done = ()=>toast("Portfolio link copied — share it anywhere");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>{ prompt("Copy this portfolio link:", url); });
+  }else{ prompt("Copy this portfolio link:", url); }
+}
 /* lightbox */
 let lbState = null;
 function openLightbox(vid, idx){
@@ -1532,7 +1687,8 @@ function renderLightbox(){
     <button onclick="lbNav(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 text-white text-xl">‹</button>
     <button onclick="lbNav(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 text-white text-xl">›</button>
     <div class="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-between gap-3">
-      <div><div class="text-ivory font-semibold">${esc(p.label||v.name)}</div>
+      <div><div class="text-ivory font-semibold">${esc(p.title||p.label||v.name)}</div>
+      ${p.caption?`<div class="text-ivory/70 text-sm mt-0.5">${esc(p.caption)}</div>`:""}
       ${p.budget!=null?`<div class="text-gold-light text-sm font-semibold mt-0.5">❄ Executed at ${fmtPrice(v.cur,p.budget)}${p.guests?` · ${p.guests} guests`:""}</div>`:""}</div>
       <div class="text-ivory/70 text-sm">${lbState.idx+1} / ${lbState.n}</div>
     </div>
@@ -1810,7 +1966,8 @@ function confirmTeamBooking(ds){
 
 /* ═══════════ ONBOARDING ═══════════ */
 let ob = null;
-function freshOb(){ return { step:1, name:"", cat:"", city:"", phone:"", ig:"", tag:"", bio:"",
+function freshOb(){ return { step:1, name:"", cat:"", city:"", phone:"", tag:"", bio:"",
+  creds:[{label:"",detail:""}],
   services:[{name:"",price:"",unit:"event"}], selImgs:[], portMeta:{}, days:["Sat","Sun"], slots:["10:00 AM","4:00 PM"],
   idCountry:"", idType:"", idNum:"", idBiz:"", idDone:false }; }
 const ID_COUNTRIES = {
@@ -1857,10 +2014,17 @@ function OnboardView(){
       <div><label class="lbl">Phone *</label><input id="ob-phone" class="field" value="${esc(ob.phone)}" placeholder="+1 555 000 1234"></div>
       <div><label class="lbl">Category *</label><select id="ob-cat" class="field"><option value="">Choose…</option>${CATEGORIES.map(c=>`<option value="${c.id}" ${ob.cat===c.id?"selected":""}>${c.name}</option>`).join("")}</select></div>
       <div><label class="lbl">City *</label><select id="ob-city" class="field"><option value="">Choose…</option>${CITIES.map(c=>`<option ${ob.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
-      <div><label class="lbl">Instagram (demo handle)</label><input id="ob-ig" class="field" value="${esc(ob.ig)}" placeholder="yourname_demo"></div>
       <div><label class="lbl">One-line tagline</label><input id="ob-tag" class="field" value="${esc(ob.tag)}" placeholder="e.g., Balloons that break the internet"></div>
     </div>
-    <label class="lbl mt-4">Short bio</label><textarea id="ob-bio" class="field" rows="3" placeholder="Your story, your style, what makes you different…">${esc(ob.bio)}</textarea>`;
+    <label class="lbl mt-4">Short bio</label><textarea id="ob-bio" class="field" rows="3" placeholder="Your story, your style, what makes you different…">${esc(ob.bio)}</textarea>
+    <div class="mt-6"><label class="lbl">Credentials & kit <span class="text-muted font-normal">(optional — certifications, courses, gear, products you use)</span></label>
+      <div class="space-y-2">${ob.creds.map((c,i)=>`
+        <div class="flex gap-2 items-center">
+          <input class="field !w-40" placeholder="Label (e.g., Equipment)" value="${esc(c.label)}" oninput="ob.creds[${i}].label=this.value">
+          <input class="field flex-1" placeholder="Detail (e.g., Sony A7IV + 35mm f/1.4)" value="${esc(c.detail)}" oninput="ob.creds[${i}].detail=this.value">
+          ${ob.creds.length>1?`<button onclick="ob.creds.splice(${i},1);OnboardRerender()" class="text-maroon text-xl px-2">×</button>`:""}
+        </div>`).join("")}</div>
+      <button onclick="ob.creds.push({label:'',detail:''});OnboardRerender()" class="btn-outline btn-sm mt-3">+ Add credential</button></div>`;
   } else if(ob.step===2){
     body = `<h3 class="font-display text-3xl font-semibold text-maroon mb-1">Services & pricing</h3>
     <p class="text-muted text-sm mb-6">Transparent prices win bookings. You can edit these anytime.</p>
@@ -1939,7 +2103,7 @@ function OnboardRerender(){ obCollect(); const app=document.getElementById("app"
 function obCollect(){
   if(!ob) return;
   const g = id => { const el=document.getElementById(id); return el?el.value.trim():""; };
-  if(ob.step===1){ ob.name=g("ob-name"); ob.cat=g("ob-cat"); ob.city=g("ob-city"); ob.phone=g("ob-phone"); ob.ig=g("ob-ig"); ob.tag=g("ob-tag"); ob.bio=g("ob-bio"); }
+  if(ob.step===1){ ob.name=g("ob-name"); ob.cat=g("ob-cat"); ob.city=g("ob-city"); ob.phone=g("ob-phone"); ob.tag=g("ob-tag"); ob.bio=g("ob-bio"); }
   if(ob.step===4){ ob.idCountry=g("ob-idcountry"); ob.idType=g("ob-idtype"); ob.idNum=g("ob-idnum"); ob.idBiz=g("ob-idbiz"); }
 }
 function obNext(){
@@ -1975,7 +2139,8 @@ function publishVendor(){
     verified:false, newcomer:true, idVerified:ob.idDone, idCountry:ob.idCountry, idType:ob.idType,
     tag:ob.tag||"New on Utsav — book the future favorite.",
     bio:ob.bio||"A newcomer on Utsav, ready to prove themselves at honest prices.",
-    langs:["English"], ig:(ob.ig||"yourhandle_demo").replace(/^@/,""),
+    langs:["English"],
+    creds:ob.creds.filter(c=>c.label.trim()||c.detail.trim()).map(c=>[c.label.trim(),c.detail.trim()]),
     occ:["wedding","birthday"], services, port, revs:[], collab:[],
     avail:{ days:ob.days, slots:ob.slots }, phone:ob.phone
   };
@@ -2013,12 +2178,68 @@ function BookingsView(){
       </div>`).join("")}</div>
   </section>`;
 }
+/* ---- fast-track rebooking: after a cancellation, surface same-category vendors
+        with a free slot on the same date, nearest first ---- */
+function findReplacements(b){
+  const sameCat = allVendors().filter(v=>v.cat===b.cat && v.id!==b.vendorId);
+  const withSlot = [];
+  for(const v of sameCat){
+    const free = slotsFor(v.id, b.date).filter(s=>s.free);
+    if(free.length) withSlot.push({ v:v, slot:free[0].time, nearby:(v.city||"")=== (b.city||"") });
+  }
+  withSlot.sort((a,c)=>((c.nearby?1:0)-(a.nearby?1:0)) || (c.v.rating-a.v.rating));
+  return { withSlot:withSlot, alts:sameCat.slice().sort((a,c)=>c.rating-a.rating).slice(0,3) };
+}
+function fastTrackModal(b){
+  const r = findReplacements(b);
+  const cancelled = `<div class="bg-cream/60 border border-cream rounded-2xl p-4 text-sm mb-6">
+      <div class="text-xs text-muted uppercase tracking-widest font-bold mb-1">Cancelled</div>
+      <div class="font-semibold">${esc(b.vendorName)}</div>
+      <div class="text-muted">${esc(b.service)} · ${prettyDate(b.date)} · ${esc(b.slot)}</div></div>`;
+  let panel;
+  if(r.withSlot.length){
+    panel = `<h4 class="font-display text-xl font-semibold text-maroon mb-1">⚡ Find a replacement fast</h4>
+      <p class="text-sm text-muted mb-4">Same kind of vendor, free on <b>${prettyDate(b.date)}</b> — book in one tap.</p>
+      <div class="space-y-3">${r.withSlot.slice(0,6).map(x=>`
+        <div class="card p-4 flex items-center gap-4">
+          <span class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shrink-0" style="background:${avatarBg(x.v.name)}">${initials(x.v.name)}</span>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold truncate">${esc(x.v.name)} ${x.nearby?'<span class="badge badge-cat ml-1">Nearby</span>':""}</div>
+            <div class="text-xs text-muted">${stars(x.v.rating)} ${x.v.rating.toFixed(1)} · 📍 ${esc(x.v.city)} · from ${fmtPrice(x.v.cur,x.v.price)}</div>
+            <div class="text-xs mt-1 text-emerald-700 font-semibold">✅ Free ${prettyDate(b.date)} · ${esc(x.slot)}</div>
+          </div>
+          <button onclick="closeModal();openBooking('${x.v.id}',{date:'${b.date}',slot:'${x.slot}'})" class="btn-primary btn-sm shrink-0">Book instead</button>
+        </div>`).join("")}</div>`;
+  }else{
+    panel = `<h4 class="font-display text-xl font-semibold text-maroon mb-1">⚡ Find a replacement fast</h4>
+      <p class="text-sm text-muted mb-4">No nearby availability on <b>${prettyDate(b.date)}</b> — try these instead:</p>
+      <div class="space-y-3">${r.alts.map(v=>`
+        <a href="#/vendor/${v.id}" onclick="closeModal()" class="card p-4 flex items-center gap-4">
+          <span class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shrink-0" style="background:${avatarBg(v.name)}">${initials(v.name)}</span>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold truncate">${esc(v.name)}</div>
+            <div class="text-xs text-muted">${stars(v.rating)} ${v.rating.toFixed(1)} · 📍 ${esc(v.city)} · from ${fmtPrice(v.cur,v.price)}</div>
+          </div>
+          <span class="text-gold text-xl">→</span></a>`).join("") || `<p class="text-sm text-muted">No similar vendors yet — check the <a href="#/browse" onclick="closeModal()" class="underline text-maroon">browse page</a>.</p>`}</div>`;
+  }
+  openModal(`<div class="p-7 sm:p-9">
+    <div class="flex items-start justify-between mb-5">
+      <h3 class="font-display text-3xl font-semibold text-maroon">Booking cancelled</h3>
+      <button onclick="closeModal()" class="text-3xl text-muted hover:text-maroon leading-none">×</button>
+    </div>
+    ${cancelled}${panel}
+    <div class="flex justify-center mt-6"><button onclick="closeModal()" class="btn-outline btn-sm">Done</button></div>
+  </div>`);
+}
 async function cancelBooking(ref){
+  const doomed = (store.get("utsav_bookings",[])||[]).find(b=>b.ref===ref);
   if(API_ONLINE){
     try{ await cancelBookingApi(ref); }catch(e){ /* local copy is still removed below */ }
   }
   store.set("utsav_bookings", store.get("utsav_bookings",[]).filter(b=>b.ref!==ref));
-  toast("Booking cancelled"); navigate();
+  if(doomed && doomed.type!=="team" && doomed.cat && doomed.date){ fastTrackModal(doomed); }
+  else { toast("Booking cancelled"); }
+  navigate();
 }
 
 /* ═══════════ OCCASIONS ═══════════ */
@@ -2051,6 +2272,7 @@ function router(){
   let html = "";
   if(path==="#"||path==="#/") html = HomeView();
   else if(path==="#/browse") html = BrowseView();
+  else if(path.indexOf("#/vendor/")===0 && path.split("/")[3]==="portfolio") html = PortfolioView(path.split("/")[2]);
   else if(path.indexOf("#/vendor/")===0) html = VendorView(path.split("/")[2]);
   else if(path==="#/compare") html = CompareView();
   else if(path==="#/team") html = TeamView();
@@ -2061,7 +2283,7 @@ function router(){
   app.innerHTML = html;
   app.classList.remove("page-in"); void app.offsetWidth; app.classList.add("page-in");
   if(path==="#/browse") renderBrowseResults();
-  if(path.indexOf("#/vendor/")===0){ profileTab = "portfolio"; renderProfileTab(path.split("/")[2]); }
+  if(path.indexOf("#/vendor/")===0 && path.split("/")[3]!=="portfolio"){ profileTab = "portfolio"; renderProfileTab(path.split("/")[2]); }
   renderCompareBar(); updateTeamBadge(); updateFreezePill();
   initReveals(); initCounters();
   window.scrollTo(0,0);
@@ -2094,5 +2316,421 @@ detectGeo();
 router();
 bootApi();   /* try the Spring Boot backend; falls back to demo data if it's not running */
 </script>
+<style>
+/* ═══════════ UTSAV AI BOT ═══════════ */
+#ai-fab{position:fixed;right:1.25rem;bottom:1.25rem;z-index:96;width:3.75rem;height:3.75rem;border-radius:9999px;
+  background:linear-gradient(135deg,#6D1A2D,#a33);color:#fff;font-size:1.6rem;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 30px rgba(109,26,45,.45);cursor:pointer;border:2px solid #C19A3D;transition:transform .2s}
+#ai-fab:hover{transform:scale(1.08)}
+#ai-fab::after{content:"";position:absolute;inset:-6px;border-radius:9999px;border:2px solid rgba(193,154,61,.55);animation:ai-ping 2.2s ease-out infinite}
+@keyframes ai-ping{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.25);opacity:0}}
+#ai-panel{position:fixed;right:1.25rem;bottom:5.5rem;z-index:95;width:390px;max-width:calc(100vw - 2.5rem);height:540px;max-height:calc(100vh - 8rem);
+  display:none;flex-direction:column;border-radius:1.25rem;overflow:hidden;background:#FFFDF7;border:1px solid #e9dcc0;
+  box-shadow:0 25px 60px rgba(60,20,30,.35)}
+#ai-panel.open{display:flex;animation:ai-up .25s ease-out}
+@keyframes ai-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+#ai-head{background:linear-gradient(135deg,#6D1A2D,#8a2438);color:#FFF8E7;padding:.9rem 1.1rem;display:flex;align-items:center;gap:.7rem}
+#ai-head .ai-ava{width:2.4rem;height:2.4rem;border-radius:9999px;background:linear-gradient(135deg,#C19A3D,#e8c86a);
+  display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+#ai-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.7rem;background:
+  radial-gradient(circle at 85% 10%,rgba(193,154,61,.10),transparent 45%),#FFFDF7}
+.ai-msg{max-width:88%;padding:.65rem .9rem;border-radius:1rem;font-size:.875rem;line-height:1.5;word-wrap:break-word}
+.ai-bot{background:#fff;border:1px solid #e9dcc0;border-bottom-left-radius:.25rem;color:#3d2b2b;align-self:flex-start;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.ai-user{background:linear-gradient(135deg,#6D1A2D,#8a2438);color:#FFF8E7;border-bottom-right-radius:.25rem;align-self:flex-end}
+.ai-typing{display:inline-flex;gap:.25rem;padding:.4rem 0}
+.ai-typing span{width:.45rem;height:.45rem;border-radius:9999px;background:#C19A3D;animation:ai-blink 1.2s infinite}
+.ai-typing span:nth-child(2){animation-delay:.2s}.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes ai-blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.ai-vcard{background:#fff;border:1px solid #e9dcc0;border-radius:.8rem;overflow:hidden;margin-top:.55rem;box-shadow:0 3px 10px rgba(0,0,0,.06)}
+.ai-vcard img{width:100%;height:7.5rem;object-fit:cover}
+.ai-vcard .ai-vbody{padding:.6rem .75rem}
+.ai-vcard .ai-why{font-size:.72rem;color:#8a6d1f;background:#FBF3DC;border-radius:.5rem;padding:.3rem .55rem;margin:.45rem 0}
+.ai-vcard .ai-vbtns{display:flex;gap:.45rem}
+.ai-vcard .ai-vbtns a,.ai-vcard .ai-vbtns button{flex:1;text-align:center;font-size:.75rem;font-weight:700;border-radius:.6rem;padding:.45rem 0;cursor:pointer;text-decoration:none}
+.ai-vbtn-view{background:#fff;border:1px solid #6D1A2D;color:#6D1A2D}
+.ai-vbtn-book{background:#6D1A2D;color:#fff;border:1px solid #6D1A2D}
+#ai-chips{display:flex;gap:.4rem;overflow-x:auto;padding:.55rem .8rem;border-top:1px solid #f0e6cf;background:#FFFEFA;flex-shrink:0}
+.ai-chip{flex-shrink:0;font-size:.72rem;font-weight:600;color:#6D1A2D;background:#FBF3DC;border:1px solid #e9dcc0;
+  border-radius:9999px;padding:.35rem .7rem;cursor:pointer;white-space:nowrap}
+.ai-chip:hover{background:#f3e7c8}
+#ai-inputbar{display:flex;gap:.5rem;padding:.7rem .8rem;border-top:1px solid #f0e6cf;background:#fff;align-items:center;flex-shrink:0}
+#ai-input{flex:1;border:1px solid #e9dcc0;border-radius:9999px;padding:.6rem 1rem;font-size:.875rem;outline:none;background:#FFFEFA}
+#ai-input:focus{border-color:#C19A3D;box-shadow:0 0 0 2px rgba(193,154,61,.25)}
+#ai-mic{width:2.5rem;height:2.5rem;border-radius:9999px;border:1px solid #e9dcc0;background:#FFFEFA;font-size:1.05rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+#ai-mic.listening{background:#6D1A2D;color:#fff;border-color:#6D1A2D;animation:ai-blink 1s infinite}
+#ai-send{width:2.5rem;height:2.5rem;border-radius:9999px;background:linear-gradient(135deg,#6D1A2D,#a33);color:#fff;border:none;
+  font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+</style>
+<button id="ai-fab" onclick="toggleAiBot()" title="Chat with Utsav AI" aria-label="Chat with Utsav AI">✦</button>
+<div id="ai-panel" role="dialog" aria-label="Utsav AI chat">
+  <div id="ai-head">
+    <div class="ai-ava">✦</div>
+    <div class="flex-1">
+      <div class="font-display font-semibold text-base leading-tight">Utsav AI</div>
+      <div class="text-xs text-white/70">Your celebration planner · <span id="ai-mode">demo mode</span></div>
+    </div>
+    <button onclick="toggleAiBot()" class="text-white/80 hover:text-white text-xl leading-none px-1" aria-label="Close chat">×</button>
+  </div>
+  <div id="ai-msgs"></div>
+  <div id="ai-chips"></div>
+  <div id="ai-inputbar">
+    <button id="ai-mic" onclick="aiMic()" title="Voice input" aria-label="Voice input">🎙</button>
+    <input id="ai-input" placeholder="Describe your celebration…" autocomplete="off"
+      onkeydown="if(event.key==='Enter')aiSend()">
+    <button id="ai-send" onclick="aiSend()" aria-label="Send">➤</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════ UTSAV AI — recommendation bot ═══════════
+   Chat + voice concierge. Works fully in demo mode (localStorage seed data);
+   in live-API mode it scores the same vendor objects returned by fetchVendors/mapVendor.
+   Pure logic (aiParse / aiScoreVendors) is DOM-free so it can be unit-tested. */
+
+const AIBOT = { open:false, ctx:{}, greeted:false, listening:false, recog:null };
+
+/* ---------- text helpers ---------- */
+const AI_STOP = new Set(("a,an,the,and,or,for,to,in,on,of,with,my,me,i,want,need,looking,find,get,show,please,some,any,our,us,we,at,by,is,are,was,were,be,been,do,does,that,this,those,these,it,its,as,from,into,like,just,very,really,so,too,also,can,could,would,should,will,who,whom,whose,what,which,when,where,how,why,hi,hello,hey,there,kind,sort,type,way,one,two,three,make,made,having,have,has,had,im,i'm,youre,you're,don't,dont,it's,its").split(","));
+function aiTokens(t){
+  return t.toLowerCase().replace(/[^a-z₹$\s]/g," ").split(/\s+/).filter(w=>w.length>1 && !AI_STOP.has(w));
+}
+function aiVendorDoc(v){
+  const parts = [v.name, v.tag||"", v.bio||""];
+  (v.services||[]).forEach(s=>parts.push(s[0]));
+  (v.port||[]).forEach(p=>{ if(typeof p==="object"){ parts.push(p.title||"", p.caption||"", p.label||""); } });
+  (v.creds||[]).forEach(c=>parts.push(c[0]||"", c[1]||""));
+  (vendorReviews(v)||[]).forEach(r=>parts.push(r[3]||""));
+  (v.langs||[]).forEach(l=>parts.push(l));
+  return parts.join(" ").toLowerCase();
+}
+
+/* ---------- intent parsing ---------- */
+const AI_CAT_ALIASES = [
+  ["photographers",["photographer","photography","photo","photos","candid","videographer","videography","shoot","prewedding shoot"]],
+  ["makeup",["makeup","mua","glam","bridal makeup","hairstylist","hair stylist","hair and makeup"]],
+  ["decorators",["decorator","decor","decoration","mandap","stage decor","backdrop","flowers","floral"]],
+  ["mehendi",["mehendi","mehndi","henna"]],
+  ["djs",["dj","music","dance floor","playlist","sangeet night"]],
+  ["caterers",["caterer","catering","food","buffet","dinner","lunch"]],
+  ["hosts",["host","mc ","emcee","anchor","hosting"]],
+  ["choreographers",["choreographer","choreography","dance practice","dance rehearsal"]]
+];
+const AI_OCC_ALIASES = { shaadi:"wedding", marriage:"wedding", reception:"wedding", mehndi:"mehendi",
+  sangeeth:"sangeet", birthday:"birthday", bday:"birthday", shower:"babyshower", seemantham:"babyshower",
+  diwali:"christmas", navratri:"sangeet" };
+const AI_STYLE_WORDS = ["traditional","modern","minimal","minimalist","royal","boho","candid","cinematic",
+  "elegant","classic","fun","quirky","colorful","vibrant","luxury","rustic","vintage","glamorous","simple"];
+const AI_CITY_ALIASES = { "new york":"New York", nyc:"New York", "bay area":"Bay Area", sf:"Bay Area",
+  "san francisco":"Bay Area", bengaluru:"Bangalore", dallas:"Dallas", houston:"Houston", boston:"Boston",
+  chennai:"Chennai", hyderabad:"Hyderabad", dubai:"Dubai" };
+
+function aiParseBudget(t, city){
+  let budget=null, bcur="$";
+  let m = t.match(/₹\s?([\d,]+)/) || t.match(/([\d,]+)\s?(₹|rs\.?|rupees)/) || t.match(/rs\.?\s?([\d,]+)/);
+  if(m){ budget=parseInt(m[1].replace(/,/g,"")); bcur="₹"; }
+  else { m = t.match(/\$\s?([\d,]+)/) || t.match(/([\d,]+)\s?(dollars|usd|bucks)/);
+    if(m) budget=parseInt(m[1].replace(/,/g,"")); }
+  if(!budget){
+    m = t.match(/(?:under|within|around|about|up to|max)\s+(?:₹|\$)?\s?([\d,]+)/);
+    if(m){ budget=parseInt(m[1].replace(/,/g,""));
+      bcur = (city && ["Hyderabad","Chennai","Bangalore"].includes(city)) ? "₹" : "$"; }
+  }
+  let tier=null;
+  if(/\b(cheap|cheaper|cheapest|budget|affordable|low cost|low-cost|economical)\b/.test(t)) tier="low";
+  else if(/\b(premium|luxury|high-end|high end|best|top|finest)\b/.test(t)) tier="high";
+  return { budget, bcur, tier };
+}
+function aiParseDate(t){
+  const now = new Date();
+  const months = {january:0,jan:0,february:1,feb:1,march:2,mar:2,april:3,apr:3,may:4,june:5,jun:5,
+    july:6,jul:6,august:7,aug:7,september:8,sep:8,sept:8,october:9,oct:9,november:10,nov:10,december:11,dec:11};
+  let m = t.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\b\s*(\d{1,2})?/);
+  if(m){
+    let y = now.getFullYear(); const mo = months[m[1]]; const d = m[2]?parseInt(m[2]):15;
+    if(mo < now.getMonth() || (mo===now.getMonth() && d < now.getDate())) y++;
+    return y+"-"+String(mo+1).padStart(2,"0")+"-"+String(Math.min(d,28)).padStart(2,"0");
+  }
+  if(/next month/.test(t)){ const d=new Date(now.getFullYear(), now.getMonth()+1, 15); return aiYMD(d); }
+  if(/this weekend|next weekend/.test(t)){ const d=new Date(now); const add=(6-d.getDay()+7)%7 || 7; d.setDate(d.getDate()+add); return aiYMD(d); }
+  const days={sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6};
+  m = t.match(/\b(next\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if(m){ const d=new Date(now); let add=(days[m[2]]-d.getDay()+7)%7; if(add===0||m[1]) add+=7; d.setDate(d.getDate()+add); return aiYMD(d); }
+  return null;
+}
+function aiYMD(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+function aiParse(raw, prev){
+  const t = " " + raw.toLowerCase() + " ";
+  const intent = Object.assign({}, prev||{});
+  // occasion
+  for(const o of OCCASIONS){ if(t.includes(o.name.toLowerCase()) || t.includes(" "+o.id+" ")){ intent.occasion=o.id; break; } }
+  if(!intent.occasion) for(const k in AI_OCC_ALIASES){ if(t.includes(k)){ intent.occasion=AI_OCC_ALIASES[k]; break; } }
+  // category (first match wins; "and" lists handled by taking up to 2)
+  intent.cats = intent.cats || [];
+  for(const [cid, words] of AI_CAT_ALIASES){
+    if(words.some(w=>t.includes(w)) && !intent.cats.includes(cid)) intent.cats.push(cid);
+  }
+  if(intent.cats.length>2) intent.cats = intent.cats.slice(0,2);
+  // city
+  for(const k in AI_CITY_ALIASES){ if(t.includes(k)){ intent.city=AI_CITY_ALIASES[k]; break; } }
+  if(!intent.city) for(const c of CITIES){ if(t.includes(c.toLowerCase())){ intent.city=c; break; } }
+  if(/near me|nearby|close by|around me/.test(t) && typeof geo!=="undefined" && geo && geo.city) intent.city = geo.city;
+  // budget
+  const b = aiParseBudget(t, intent.city||(prev&&prev.city));
+  if(b.budget){ intent.budget=b.budget; intent.bcur=b.bcur; }
+  if(b.tier) intent.tier=b.tier;
+  // follow-up: "cheaper" without a number → shave 30% off last budget
+  if(/cheaper|more affordable|lower budget|tighten/.test(t) && !b.budget && prev && prev.budget){
+    intent.budget = Math.round(prev.budget*0.7); intent.bcur = prev.bcur||"$"; intent.tier="low";
+  }
+  // style
+  intent.styles = intent.styles || [];
+  for(const s of AI_STYLE_WORDS){ if(t.includes(s) && !intent.styles.includes(s)) intent.styles.push(s); }
+  // date / guests
+  const dt = aiParseDate(t); if(dt) intent.date=dt;
+  const g = t.match(/(\d+)\s*(guests|people|pax)/); if(g) intent.guests=parseInt(g[1]);
+  // "like that one" → reuse last recommended category
+  if(/like that|similar|more like/.test(t) && prev && prev.lastCat){ intent.cats=[prev.lastCat]; }
+  return intent;
+}
+
+/* ---------- recommendation engine ---------- */
+function aiScoreVendors(intent, tokens){
+  let cands = allVendors();
+  if(intent.cats && intent.cats.length) cands = cands.filter(v=>intent.cats.includes(v.cat));
+  else if(intent.occasion) cands = cands.filter(v=>(v.occ||[]).includes(intent.occasion));
+  // city: prefer exact city, fall back to same region, then everywhere
+  if(intent.city){
+    const inRegion = v => v.city===intent.city ? 2 :
+      ((v.country==="India")===["Hyderabad","Chennai","Bangalore"].includes(intent.city) ? 1 : 0);
+    const exact = cands.filter(v=>inRegion(v)===2);
+    const region = cands.filter(v=>inRegion(v)===1);
+    cands = exact.length ? exact : (region.length ? region : cands);
+  }
+  const scored = cands.map(v=>{
+    let s = 0; const why = [];
+    // (a) text similarity: request tokens vs vendor doc
+    const doc = aiVendorDoc(v);
+    let hits = 0;
+    for(const tok of tokens){
+      if(doc.includes(tok)){
+        hits++;
+        if((v.services||[]).some(x=>x[0].toLowerCase().includes(tok))) s += 3;
+        else if(doc.includes(tok)) s += 1;
+      }
+    }
+    if(hits>0) why.push("matches what you described");
+    // (b) reviews earn ranking: rating weighted + review-count boost
+    s += v.rating*2 + Math.min(v.rc||0,300)/60;
+    if((v.rc||0)>=50) why.push("★ "+v.rating.toFixed(1)+" from "+v.rc+" reviews");
+    else if(v.rating>=4.8) why.push("★ "+v.rating.toFixed(1)+" rated");
+    if(v.verified){ s+=1; why.push("verified"); }
+    if(v.newcomer) s+=0.5;
+    // (c) budget fit — hard cap: never show vendors >1.5x an explicit budget
+    if(intent.budget){
+      const busd = intent.bcur==="₹" ? intent.budget/83 : intent.budget;
+      const pusd = priceUSD(v);
+      if(pusd > busd*1.5) return null;
+      if(pusd <= busd){ s+=2; why.push("fits your "+fmtPrice(intent.bcur,intent.budget)+" budget"); }
+      else if(pusd <= busd*1.25) s+=0.5;
+      else s -= 2;
+    } else if(intent.tier==="low"){
+      s += Math.max(0, 2 - priceUSD(v)/800);
+    }
+    // city / region
+    if(intent.city){
+      if(v.city===intent.city){ s+=3; why.push("in "+intent.city); }
+      else {
+        const vIn = v.country==="India", cIn = ["Hyderabad","Chennai","Bangalore"].includes(intent.city);
+        if(vIn===cIn) s+=1;
+      }
+    }
+    // occasion + style
+    if(intent.occasion && (v.occ||[]).includes(intent.occasion)) s+=1.5;
+    for(const st of (intent.styles||[])){ if(doc.includes(st)){ s+=2; why.push(st+" style"); break; } }
+    // (d) availability on requested date
+    if(intent.date){
+      try{
+        const free = slotsFor(v.id, intent.date).some(x=>x.free);
+        if(free){ s+=2; why.push("available "+prettyDate(intent.date)); }
+        else s-=3;
+      }catch(e){}
+    }
+    return { v, s, why:why.slice(0,3) };
+  });
+  const filtered = scored.filter(Boolean);
+  filtered.sort((a,b)=>b.s-a.s);
+  return scored;
+}
+function aiRecommend(intent, raw){
+  const tokens = aiTokens(raw);
+  const scored = aiScoreVendors(intent, tokens).filter(x=>x && x.s>-8);
+  return scored.slice(0,4);
+}
+
+/* ---------- customer care ---------- */
+async function aiLookupBooking(ref){
+  ref = ref.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(!/^UTS[A-Z0-9]{6}$/.test(ref)) return null;
+  if(typeof API_ONLINE!=="undefined" && API_ONLINE){
+    try{ const b = await apiGet("/bookings/"+encodeURIComponent(ref)); if(b) return { ref:b.reference||ref, vendorName:b.vendorName||"", date:b.date||b.eventDate||"", slot:b.timeSlot||"", status:b.status||"CONFIRMED", price:b.price, cur:b.currency }; }catch(e){}
+  }
+  const norm = r => (r||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const b = (store.get("utsav_bookings",[])||[]).find(x=>norm(x.ref)===ref);
+  if(!b) return null;
+  return { ref:b.ref, vendorName:b.vendorName||(b.vendors||[]).map(x=>x.name).join(", "), date:b.date, slot:b.slot,
+           status:"CONFIRMED", price:b.price, cur:b.cur, type:b.type };
+}
+function aiCareAnswer(t){
+  if(/cancel.*(policy|charge|fee)|cancellation policy/.test(t))
+    return "Cancelling is free and instant — open <b>My bookings</b> and hit Cancel on any booking. There's no cancellation fee because Utsav doesn't charge you at booking time; the vendor simply gets notified. If a vendor cancels on you, I'll pop up replacement options right away with fast-track rebooking.";
+  if(/refund/.test(t))
+    return "Good news: there's nothing to refund. Utsav bookings are <b>requests, not payments</b> — no money moves until you and the vendor confirm directly. (Refundable token advances are on our roadmap, so this answer will get even better soon.)";
+  if(/how.*(book|work)|booking work|how do i book|process/.test(t))
+    return "Here's how it works: <b>1.</b> Pick a vendor and a service → <b>2.</b> Choose a date & time slot → <b>3.</b> Share your details. That's it — <b>no payment now</b>. The vendor confirms within 24 hours and your reference (like UTS-XXXXXX) lands in <b>My bookings</b>, where you can track or cancel it anytime.";
+  if(/budget freeze|freeze/.test(t))
+    return "<b>Budget Freeze</b> is Utsav's signature trick: tell the concierge your total budget and occasion, and it assembles a full vendor team that fits <i>inside</i> that number — nothing gets picked if it would break the freeze. Look for the ❄️ on the home page to try it.";
+  if(/pay|payment|upi|card/.test(t))
+    return "Right now Utsav is <b>booking-first, payment-later</b>: you reserve the slot here and settle with the vendor directly. In-app payments (Razorpay/Stripe) with booking protection are coming — that's when Utsav becomes a true marketplace.";
+  if(/human|agent|support|contact|help me|phone|email/.test(t))
+    return "You can reach us at <b>manoj.dusa01@gmail.com</b> — a human replies within a day. Meanwhile, I can check a booking status (just paste your UTS-XXXXXX reference), explain policies, or find you a vendor. What do you need?";
+  if(/track|status|where.*booking|my booking/.test(t))
+    return "Paste your booking reference (it looks like <b>UTS-XXXXXX</b>) and I'll pull up its status, date, and vendor right here. You can also see everything under <b>My bookings</b> in the menu.";
+  return null;
+}
+
+/* ---------- responder ---------- */
+async function aiRespond(raw){
+  const t = " " + raw.toLowerCase() + " ";
+  const ctx = AIBOT.ctx;
+  // booking reference lookup
+  const rm = raw.toUpperCase().match(/UTS[\s-]?([A-Z0-9]{6})/);
+  if(rm){
+    const b = await aiLookupBooking("UTS"+rm[1]);
+    if(b) return { html:`Found it! ✦<br><b>${esc(b.vendorName)}</b><br>📅 ${b.date?prettyDate(b.date):"—"}${b.slot?" · "+esc(b.slot):""}<br>Status: <b class="text-green-700">${esc(b.status)}</b>${b.price!=null?`<br>Agreed price: <b>${fmtPrice(b.cur||"$",b.price)}</b>`:""}<br><span class="text-xs text-muted">Ref ${esc(b.ref)}</span>`,
+      chips:["Cancel this booking","Find similar vendors"] };
+    return { html:`Hmm, I couldn't find <b>${esc(rm[0])}</b>. Double-check the reference from your confirmation — it's 6 characters after UTS, like UTS-5M5WDQ. Or open <b>My bookings</b> to see all of them.`, chips:["How does booking work?"] };
+  }
+  // greetings / thanks
+  if(/^(hi|hii+|hello|hey|namaste|yo)\b/.test(t.trim()) || t.trim()==="hi")
+    return { html:`Hey! ✦ I'm <b>Utsav AI</b> — tell me about your celebration in plain words ("<i>mehendi artist in Hyderabad under ₹15000 next month</i>") and I'll shortlist vendors. I can also track bookings and explain how Utsav works.`,
+      chips:["Find a photographer","Wedding team under $5000","Track my booking"] };
+  if(/thank|thanks|dhanyavad|shukriya/.test(t))
+    return { html:`Anytime! ✦ May your celebration be the one people talk about for years. Need anything else?`, chips:["Find vendors","How does booking work?"] };
+  // care answers
+  const care = aiCareAnswer(t);
+  if(care) return { html:care, chips:["Find a photographer","Track my booking","What is Budget Freeze?"] };
+  // recommendations
+  const intent = aiParse(raw, ctx.lastIntent);
+  const wantsRec = intent.cats.length || intent.occasion || /vendor|book|need|find|looking|recommend|suggest|anyone|who can/.test(t);
+  if(wantsRec){
+    const recs = aiRecommend(intent, raw);
+    ctx.lastIntent = intent;
+    if(intent.cats.length===1) ctx.lastCat = intent.cats[0];
+    else if(recs.length) ctx.lastCat = recs[0].v.cat;
+    if(!recs.length)
+      return { html:`I couldn't find a match for that combination. Try widening the city or budget — or tell me the occasion and I'll build the whole team for you.`, chips:["Show all decorators","Wedding team under $5000"] };
+    const bits = intent.cats.map(catName).join(" + ") || (intent.occasion?occName(intent.occasion)+" vendors":"vendors");
+    let html = `Here are my top picks for <b>${esc(bits)}</b>${intent.city?" in <b>"+esc(intent.city)+"</b>":""} — ranked by reviews, budget fit${intent.date?", and availability":""}:`;
+    html += recs.map(({v,why})=>`
+      <div class="ai-vcard">
+        <img src="${esc(coverImg(v)||"images/hero.jpg")}" alt="${esc(v.name)}" loading="lazy">
+        <div class="ai-vbody">
+          <div class="font-semibold text-sm text-maroon">${esc(v.name)}</div>
+          <div class="flex items-center gap-1.5 text-xs text-muted mt-0.5">${stars(v.rating)}<b>${v.rating.toFixed(1)}</b> (${v.rc}) · ${esc(v.city)}</div>
+          <div class="text-xs mt-1">Starting at <b class="text-maroon">${fmtPrice(v.cur,v.price)}</b></div>
+          ${why.length?`<div class="ai-why">✦ ${esc(why.join(" · "))}</div>`:""}
+          <div class="ai-vbtns">
+            <a class="ai-vbtn-view" href="#/vendor/${v.id}" onclick="toggleAiBot(false)">View</a>
+            <button class="ai-vbtn-book" onclick="toggleAiBot(false);openBooking('${v.id}')">Book</button>
+          </div>
+        </div>
+      </div>`).join("");
+    const chips = ["Cheaper options"];
+    if(intent.city) chips.push("Only highly rated");
+    else chips.push("Only in "+(intent.city||"Houston"));
+    chips.push("How does booking work?");
+    return { html, chips };
+  }
+  // fallback
+  return { html:`I can do three things well: <b>find vendors</b> ("<i>candid photographer in Dallas under $2000</i>"), <b>track a booking</b> (paste your UTS-XXXXXX reference), or <b>explain Utsav</b> (booking, Budget Freeze, refunds). What shall we do?`,
+    chips:["Find a photographer","Track my booking","What is Budget Freeze?"] };
+}
+
+/* ---------- UI ---------- */
+function aiAddMsg(html, who){
+  const box = document.getElementById("ai-msgs");
+  const d = document.createElement("div");
+  d.className = "ai-msg " + (who==="user"?"ai-user":"ai-bot");
+  if(who==="user") d.textContent = html; else d.innerHTML = html;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+  return d;
+}
+function aiSetChips(chips){
+  const row = document.getElementById("ai-chips");
+  row.innerHTML = (chips||[]).map(c=>`<button class="ai-chip" onclick="aiChip('${c.replace(/'/g,"\\'")}')">${esc(c)}</button>`).join("");
+}
+function aiChip(c){ document.getElementById("ai-input").value = c; aiSend(c); }
+function aiTyping(){
+  const box = document.getElementById("ai-msgs");
+  const d = document.createElement("div");
+  d.className = "ai-msg ai-bot"; d.id = "ai-typing";
+  d.innerHTML = `<span class="ai-typing"><span></span><span></span><span></span></span>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+function aiUntype(){ const t=document.getElementById("ai-typing"); if(t) t.remove(); }
+async function aiSend(prefill){
+  const input = document.getElementById("ai-input");
+  const text = (prefill!=null?prefill:input.value).trim();
+  if(!text) return;
+  input.value = "";
+  aiAddMsg(text, "user");
+  aiTyping();
+  try{
+    const r = await aiRespond(text);
+    aiUntype(); aiAddMsg(r.html, "bot"); aiSetChips(r.chips);
+  }catch(e){ aiUntype(); aiAddMsg("Something hiccupped on my end — try again in a moment?", "bot"); }
+}
+function toggleAiBot(force){
+  const p = document.getElementById("ai-panel");
+  const want = force!=null ? force : !AIBOT.open;
+  AIBOT.open = want;
+  p.classList.toggle("open", want);
+  document.getElementById("ai-mode").textContent = (typeof API_ONLINE!=="undefined" && API_ONLINE) ? "live" : "demo mode";
+  if(want && !AIBOT.greeted){
+    AIBOT.greeted = true;
+    aiAddMsg(`Hey! ✦ I'm <b>Utsav AI</b>. Describe your celebration — occasion, city, budget, anything — and I'll shortlist the right vendors. You can even <b>talk to me</b> with the mic.`, "bot");
+    aiSetChips(["Find a photographer","Mehendi artist in Bay Area","Track my booking","How does booking work?"]);
+  }
+  if(want) setTimeout(()=>document.getElementById("ai-input").focus(), 250);
+}
+/* ---------- voice input (Web Speech API, free, no keys) ---------- */
+function aiMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById("ai-mic");
+  if(!SR){ toast("Voice isn't supported in this browser — type instead ✦"); return; }
+  if(AIBOT.listening && AIBOT.recog){ try{AIBOT.recog.stop();}catch(e){} return; }
+  const rec = new SR();
+  rec.lang = "en-US"; rec.interimResults = true; rec.maxAlternatives = 1;
+  AIBOT.recog = rec; AIBOT.listening = true; btn.classList.add("listening");
+  const input = document.getElementById("ai-input");
+  rec.onresult = e=>{
+    let txt = "";
+    for(const r of e.results) txt += r[0].transcript;
+    input.value = txt;
+    if(e.results[e.results.length-1].isFinal){ aiSend(txt); }
+  };
+  const done = ()=>{ AIBOT.listening=false; btn.classList.remove("listening"); };
+  rec.onend = done; rec.onerror = done;
+  try{ rec.start(); }catch(e){ done(); }
+}
+if(typeof document!=="undefined" && document.getElementById("ai-panel")){
+  document.getElementById("ai-input").addEventListener("keydown", e=>{ if(e.key==="Escape") toggleAiBot(false); });
+  if(!(window.SpeechRecognition||window.webkitSpeechRecognition)){
+    const m = document.getElementById("ai-mic"); if(m) m.style.display="none";
+  }
+}
+</script>
+
 </body>
 </html>
